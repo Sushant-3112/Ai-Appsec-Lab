@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [loading, setLoading] = useState(false);
@@ -14,16 +16,23 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   );
   const [keySavedNotice, setKeySavedNotice] = useState(false);
 
-  useEffect(() => {
-    // Dynamically load Google GIS Client SDK
-    if (!window.google?.accounts?.oauth2 && apiKey) {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
+  // Official React Google OAuth Hooks
+  const loginWithGoogleOAuth = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        await onAuthenticate(tokenResponse.access_token);
+      } catch (err) {
+        setOauthError(err.response?.data?.message || 'Authentication failed');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: (errorResponse) => {
+      console.error("Google OAuth Error:", errorResponse);
+      setOauthError("Google OAuth authorization failed. Check origin whitelist in Google Cloud Console.");
     }
-  }, [apiKey]);
+  });
 
   if (!isOpen) return null;
 
@@ -38,54 +47,22 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
     }, 1200);
   };
 
-  const triggerRealGoogleOAuth = () => {
-    setOauthError('');
-    if (window.google?.accounts?.oauth2 && apiKey) {
-      try {
-        setLoading(true);
-        const client = window.google.accounts.oauth2.initTokenClient({
-          client_id: apiKey,
-          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-          callback: (response) => {
-            if (response.error) {
-              setLoading(false);
-              setOauthError(`Google OAuth Error: ${response.error_description || response.error}`);
-            } else if (response.access_token) {
-              onAuthenticate(response.access_token);
-            } else {
-              setLoading(false);
-            }
-          },
-          error_callback: (err) => {
-            setLoading(false);
-            setOauthError('Error 401: invalid_client (Origin http://localhost:5173 not registered in Google Cloud Console)');
-          }
-        });
-        client.requestAccessToken();
-      } catch (err) {
-        setLoading(false);
-        setOauthError(`OAuth Client Error: ${err.message}`);
-      }
-    } else {
-      // Fallback
-      handleAccountSelect({
-        name: 'Tanu Sharma',
-        email: 'tanusharma1012207@gmail.com'
-      });
-    }
-  };
-
   const handleAccountSelect = async (account) => {
     setOauthError('');
     setLoading(true);
     setSelectedEmail(account.email);
     setTimeout(async () => {
-      await onAuthenticate('mock_google_token_' + Date.now(), {
-        email: account.email,
-        name: account.name,
-        picture: account.picture
-      });
-      setLoading(false);
+      try {
+        await onAuthenticate('mock_google_token_' + Date.now(), {
+          email: account.email,
+          name: account.name,
+          picture: account.picture
+        });
+      } catch (err) {
+        setOauthError(err.response?.data?.message || `Account '${account.email}' not found in system database.`);
+      } finally {
+        setLoading(false);
+      }
     }, 600);
   };
 
@@ -97,12 +74,17 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
     const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
     
     setTimeout(async () => {
-      await onAuthenticate('mock_google_token_' + Date.now(), {
-        email: customEmail,
-        name: formattedName,
-        picture: 'https://lh3.googleusercontent.com/a/default-user=s96-c'
-      });
-      setLoading(false);
+      try {
+        await onAuthenticate('mock_google_token_' + Date.now(), {
+          email: customEmail,
+          name: formattedName,
+          picture: 'https://lh3.googleusercontent.com/a/default-user=s96-c'
+        });
+      } catch (err) {
+        setOauthError(err.response?.data?.message || `Account '${customEmail}' is not registered in the system database.`);
+      } finally {
+        setLoading(false);
+      }
     }, 600);
   };
 
@@ -200,25 +182,25 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
             <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 text-left animate-fadeIn">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-red-800 uppercase flex items-center gap-1.5">
-                  ⚠️ Error 401: invalid_client / No Registered Origin
+                  ⚠️ Google Authentication Error
                 </span>
                 <button onClick={() => setOauthError('')} className="text-xs text-red-400 hover:text-red-600 font-bold cursor-pointer">✕</button>
               </div>
               <p className="text-xs font-medium text-red-700 leading-relaxed mt-1">
-                Google Cloud Console requires <code className="bg-red-100 text-red-900 px-1.5 py-0.5 rounded font-mono font-bold">http://localhost:5173</code> to be listed under <strong>Authorized JavaScript origins</strong> for this Client ID.
+                {oauthError}
               </p>
               <div className="mt-3 flex items-center gap-2">
                 <button
-                  onClick={() => handleAccountSelect({ name: 'Tanu Sharma', email: 'tanusharma1012207@gmail.com' })}
-                  className="px-3.5 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  onClick={() => handleAccountSelect({ name: 'Sushant Sharma', email: 'sushant.sharma@somaiya.edu' })}
+                  className="px-3.5 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-2xs transition-colors cursor-pointer"
                 >
-                  Instant Bypass & Log In as Tanu Sharma
+                  Log In as Sushant Sharma (System Account)
                 </button>
                 <button
-                  onClick={() => setShowApiKeyConfig(true)}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-white border border-red-200 text-red-800 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => handleAccountSelect({ name: 'Tanu Sharma', email: 'tanusharma1012207@gmail.com' })}
+                  className="px-3.5 py-1.5 text-xs font-bold bg-teal-700 hover:bg-teal-800 text-white rounded-lg shadow-2xs transition-colors cursor-pointer"
                 >
-                  Edit Client ID
+                  Log In as Tanu Sharma
                 </button>
               </div>
             </div>
@@ -228,7 +210,7 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
             <div className="py-16 text-center space-y-4">
               <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
               <p className="text-base text-gray-700 font-medium">Authenticating as <span className="text-blue-600 font-bold">{selectedEmail || customEmail || 'Google User'}</span>...</p>
-              <p className="text-xs text-gray-400">Verifying Google OAuth 2.0 Credentials</p>
+              <p className="text-xs text-gray-400">Verifying Google OAuth 2.0 Credentials with Server</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
@@ -241,7 +223,40 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 <p className="text-sm text-gray-600 font-normal leading-relaxed">
                   to continue to <span className="text-[#1a73e8] font-medium hover:underline cursor-pointer">aiappseclab.auth.google.com</span>
                 </p>
-                
+
+                {/* Official Google OAuth Native Button Component */}
+                <div className="mt-6">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 text-left">
+                    Official Google OAuth 2.0 Button
+                  </p>
+                  <div className="flex justify-start">
+                    <GoogleLogin
+                      onSuccess={async (credentialResponse) => {
+                        setLoading(true);
+                        try {
+                          const decoded = jwtDecode(credentialResponse.credential);
+                          await onAuthenticate(credentialResponse.credential, {
+                            email: decoded.email,
+                            name: decoded.name,
+                            picture: decoded.picture
+                          });
+                        } catch (err) {
+                          setOauthError(err.response?.data?.message || "Google Authentication failed");
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      onError={() => {
+                        setOauthError("Google OAuth Sign-In failed or popup was closed.");
+                      }}
+                      useOneTap
+                      theme="filled_blue"
+                      shape="pill"
+                      text="continue_with"
+                    />
+                  </div>
+                </div>
+
                 {/* Active Key Indicator */}
                 <div className="mt-6 p-3 bg-gray-50 rounded-2xl border border-gray-200/70 text-left">
                   <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -335,9 +350,9 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
 
                     <div className="border-b border-gray-200/80 my-1"></div>
 
-                    {/* Trigger Real Google OAuth API Key Popup */}
+                    {/* Launch Official Google OAuth 2.0 Popup via react-oauth/google */}
                     <button
-                      onClick={triggerRealGoogleOAuth}
+                      onClick={() => loginWithGoogleOAuth()}
                       className="w-full flex items-center gap-3.5 p-3.5 rounded-xl hover:bg-blue-50/70 border border-blue-100 transition-all text-left text-blue-700 font-medium text-sm cursor-pointer group my-1"
                     >
                       <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
@@ -346,8 +361,8 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-blue-700 leading-tight">Sign in with API Key OAuth</p>
-                        <p className="text-[11px] text-blue-500">Launch Google OAuth 2.0 API Key Prompt</p>
+                        <p className="text-sm font-bold text-blue-700 leading-tight">Official Google OAuth Popup</p>
+                        <p className="text-[11px] text-blue-500">Launch Official @react-oauth/google Prompt</p>
                       </div>
                     </button>
 
