@@ -180,67 +180,85 @@ const Login = () => {
 
       </div>
 
-      {/* Right Column: Hero Graphic Section (Samay Raina Feature) */}
-      <div className="hidden md:flex w-1/2 bg-[#090b10] relative flex-col justify-between p-12 lg:p-16 overflow-hidden">
+      {/* Right Column: Dynamic 3D Neon & Blue Split Hero Section (Image 2 Design) */}
+      <div className="hidden md:flex w-1/2 bg-[#2563eb] relative overflow-hidden flex-col justify-end p-0">
         
-        {/* Background Decorative Glow */}
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-10 left-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        {/* Top Badges */}
-        <div className="flex justify-between items-center relative z-10">
-          <span className="px-3.5 py-1 bg-white/10 backdrop-blur-md text-emerald-400 font-semibold text-xs rounded-full border border-emerald-500/30">
-            ★ Official Creator Space
-          </span>
-          <div className="flex gap-2">
-            <span className="w-8 h-8 rounded-full bg-red-600/80 flex items-center justify-center text-white text-xs font-bold shadow-md">
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        {/* Electric Lime Hero Card Base Container */}
+        <div className="w-full h-full bg-[#ccff00] rounded-tl-[60px] p-8 lg:p-12 relative flex flex-col justify-between items-center overflow-hidden">
+          
+          {/* Top Right Floating Social Icons */}
+          <div className="w-full flex justify-end gap-3 relative z-20">
+            <span className="w-12 h-12 rounded-full bg-[#ff0000] flex items-center justify-center text-white shadow-xl cursor-pointer hover:scale-110 transition-transform">
+              <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
             </span>
-            <span className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-red-600 font-black text-xs border border-red-500/30">
+            <span className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-red-600 font-black text-xl shadow-xl border border-red-500/30 cursor-pointer hover:scale-110 transition-transform">
               N
             </span>
           </div>
-        </div>
 
-        {/* Center Hero Card: Samay Raina */}
-        <div className="my-auto relative z-10 flex justify-center py-6">
-          <div className="relative w-full max-w-sm">
-            <div className="bg-[#13161f]/95 backdrop-blur-xl rounded-3xl p-6 border border-[#1e2330] shadow-2xl space-y-5 transform transition-transform hover:scale-[1.02]">
-              
-              <div className="relative h-72 rounded-2xl overflow-hidden bg-slate-900">
-                <img 
-                  src="/samay_raina_stage.png" 
-                  alt="Samay Raina"
-                  className="w-full h-full object-cover object-top filter contrast-105 brightness-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#13161f] via-transparent to-transparent opacity-80"></div>
-                <div className="absolute top-3.5 right-3.5 px-3.5 py-1 bg-black/75 backdrop-blur-md rounded-full text-[11px] font-bold text-white border border-white/15 shadow-sm">
-                  @SamayRainaOfficial
+          {/* Center Stage: Floating Cards Group */}
+          <div className="relative w-full max-w-md my-auto flex justify-center items-center py-6">
+            
+            {/* Top Floating Video Widget Card */}
+            <div className="absolute -top-6 left-2 z-30 bg-[#12141c] text-white p-3.5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3.5 w-64 transform -rotate-3 hover:rotate-0 transition-transform">
+              <div className="relative w-12 h-10 rounded-lg overflow-hidden bg-red-900 shrink-0">
+                <img src="/samay_raina_stage.png" alt="Thumbnail" className="w-full h-full object-cover object-top" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center">
+                    <span className="text-[8px] text-white">▶</span>
+                  </div>
                 </div>
               </div>
-
-              <div className="space-y-1">
-                <h3 className="text-3xl font-extrabold text-white tracking-tight">Samay Raina</h3>
-                <p className="text-xs font-semibold text-[#10b981]">Chess Enthusiast • Creator of India's Got Latent</p>
-              </div>
-
-              <div className="pt-3 border-t border-white/10 flex justify-between items-center">
-                <div>
-                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">LATENT SHOW PASS</p>
-                  <p className="text-xl font-extrabold text-white">₹499</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-white truncate">India's Got Latent</p>
+                <p className="text-[10px] text-gray-400 truncate">@SamayRainaOfficial</p>
+                <div className="w-full bg-gray-700 h-1 rounded-full mt-1.5 overflow-hidden">
+                  <div className="bg-red-500 h-full w-2/3"></div>
                 </div>
-                <button className="px-6 py-2.5 bg-gradient-to-r from-[#7c3aed] to-[#6366f1] hover:from-[#6d28d9] hover:to-[#4f46e5] text-white font-bold text-xs rounded-full shadow-lg shadow-purple-500/25 transition-all cursor-pointer">
-                  Get Pass
-                </button>
               </div>
-
             </div>
-          </div>
-        </div>
 
-        {/* Bottom Quote */}
-        <div className="relative z-10 text-gray-400 text-xs font-medium">
-          "Powering next-generation bio links, monetized passes & app security."
+            {/* Left Floating Product Card (ASICS Gel-Kahana) */}
+            <div className="absolute bottom-16 -left-8 z-30 bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center w-36 transform -rotate-12 hover:rotate-0 transition-transform">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-2">
+                <span className="text-xl">👟</span>
+              </div>
+              <p className="text-[10px] font-extrabold text-gray-900 text-center leading-tight">ASICS Gel-Kahana</p>
+            </div>
+
+            {/* Main Center Tall Card: Samay Raina Portrait */}
+            <div className="relative z-10 w-72 h-[380px] bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform hover:scale-[1.02] transition-transform">
+              <img 
+                src="/samay_raina_stage.png" 
+                alt="Samay Raina Stage" 
+                className="w-full h-full object-cover object-top filter contrast-105 brightness-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+              
+              <div className="absolute bottom-5 left-5 right-5 text-left space-y-0.5">
+                <p className="text-[11px] font-black text-[#ccff00] uppercase tracking-wider">SAMAY RAINA</p>
+                <h4 className="text-xl font-extrabold text-white tracking-tight">India's Got Latent</h4>
+              </div>
+            </div>
+
+            {/* Bottom-Right Floating Pass Card */}
+            <div className="absolute bottom-2 -right-4 z-30 bg-[#fffff8] p-4 rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-start w-40 transform rotate-6 hover:rotate-0 transition-transform text-left">
+              <div className="w-full h-20 rounded-xl overflow-hidden bg-slate-900 mb-2">
+                <img src="/samay_raina_stage.png" alt="Show Pass" className="w-full h-full object-cover object-top" />
+              </div>
+              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">LATENT SHOW PASS</p>
+              <p className="text-xl font-black text-gray-900 mt-0.5">₹499</p>
+            </div>
+
+          </div>
+
+          {/* Bottom Branding */}
+          <div className="relative z-20 text-center text-xs font-bold text-slate-800 tracking-wide">
+            Powered by Ai Appsec lab • Bio Links & Monetization
+          </div>
+
         </div>
 
       </div>
