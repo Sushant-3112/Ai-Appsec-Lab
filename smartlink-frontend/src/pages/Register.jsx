@@ -18,7 +18,7 @@ const Register = () => {
     setGoogleLoading(true);
     setError('');
     try {
-      await googleLogin(token, userPayload);
+      await googleLogin(token, { require_existing: false, ...userPayload });
       setIsGoogleModalOpen(false);
       navigate('/dashboard');
     } catch (err) {
@@ -41,13 +41,6 @@ const Register = () => {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
       
-      {/* Google Auth Modal Dialog */}
-      <GoogleAuthModal
-        isOpen={isGoogleModalOpen}
-        onClose={() => setIsGoogleModalOpen(false)}
-        onAuthenticate={performGoogleLogin}
-      />
-
       {/* Left Column: Register Form */}
       <div className="w-full md:w-[48%] flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-20 z-10 bg-white">
         
@@ -228,6 +221,13 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Google Auth Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onAuthenticate={performGoogleLogin}
+      />
 
     </div>
   );
