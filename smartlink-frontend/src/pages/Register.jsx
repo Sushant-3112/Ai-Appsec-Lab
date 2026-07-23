@@ -222,11 +222,17 @@ const Register = () => {
           
           {/* Top Right Floating Social Icons */}
           <div className="w-full flex justify-end gap-3 relative z-20">
-            <span className="w-12 h-12 rounded-full bg-[#ff0000] flex items-center justify-center text-white shadow-xl cursor-pointer hover:scale-110 transition-transform">
+            <a 
+              href="https://www.youtube.com/@SamayRainaOfficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-12 h-12 rounded-full bg-[#ff0000] flex items-center justify-center text-white shadow-xl cursor-pointer hover:scale-110 transition-transform"
+              title="Visit Samay Raina YouTube Channel"
+            >
               <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-            </span>
+            </a>
             <span className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-red-600 font-black text-xl shadow-xl border border-red-500/30 cursor-pointer hover:scale-110 transition-transform">
               N
             </span>
@@ -236,9 +242,14 @@ const Register = () => {
           <div className="relative w-full max-w-md my-auto flex justify-center items-center py-6">
             
             {/* Top Floating Video Widget Card */}
-            <div className="absolute -top-6 left-2 z-30 bg-[#12141c] text-white p-3.5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3.5 w-64 transform -rotate-3 hover:rotate-0 transition-transform">
+            <a 
+              href="https://www.youtube.com/@SamayRainaOfficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute -top-6 left-2 z-30 bg-[#12141c] text-white p-3.5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3.5 w-64 transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer group"
+            >
               <div className="relative w-12 h-10 rounded-lg overflow-hidden bg-red-900 shrink-0">
-                <img src="/samay_raina_stage.png" alt="Thumbnail" className="w-full h-full object-cover object-top" />
+                <img src="/samay_raina_stage.png" alt="Thumbnail" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform" />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                   <div className="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center">
                     <span className="text-[8px] text-white">▶</span>
@@ -246,13 +257,13 @@ const Register = () => {
                 </div>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-white truncate">India's Got Latent</p>
+                <p className="text-xs font-bold text-white truncate group-hover:text-red-400 transition-colors">India's Got Latent</p>
                 <p className="text-[10px] text-gray-400 truncate">@SamayRainaOfficial</p>
                 <div className="w-full bg-gray-700 h-1 rounded-full mt-1.5 overflow-hidden">
                   <div className="bg-red-500 h-full w-2/3"></div>
                 </div>
               </div>
-            </div>
+            </a>
 
             {/* Left Floating Product Card (ASICS Gel-Kahana) */}
             <div className="absolute bottom-16 -left-8 z-30 bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center w-36 transform -rotate-12 hover:rotate-0 transition-transform">
