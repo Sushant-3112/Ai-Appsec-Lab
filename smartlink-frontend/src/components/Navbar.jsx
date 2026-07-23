@@ -102,46 +102,46 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Share & Live QR Code Modal Popup (Fixed Clipping & Alignment) */}
+      {/* Share & Live QR Code Modal Popup (Fixed Top Clipping) */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto font-sans animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full my-auto shadow-2xl border border-gray-200 text-gray-900 relative overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto font-sans animate-fadeIn flex flex-col justify-center items-center">
+          <div className="bg-white rounded-3xl max-w-sm w-full my-auto shadow-2xl border border-gray-200 text-gray-900 relative overflow-hidden flex flex-col max-h-[85vh] animate-scaleUp">
             
             {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/80 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                  <QrCode size={18} />
+            <div className="flex justify-between items-center px-5 py-3.5 border-b border-gray-100 bg-gray-50/90 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                  <QrCode size={16} />
                 </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-gray-900 leading-tight">Share Bio Profile & QR</h3>
-                  <p className="text-[11px] text-gray-500 font-medium">Scan code or copy instant bio link</p>
+                <div className="text-left">
+                  <h3 className="text-sm font-extrabold text-gray-900 leading-tight">Share Bio Profile & QR</h3>
+                  <p className="text-[10px] text-gray-500 font-medium">Scan code or copy instant link</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsShareModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-200 transition cursor-pointer"
+                className="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200 transition cursor-pointer"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
             {/* QR Code Graphic Display */}
-            <div className="p-6 flex flex-col items-center text-center space-y-4 overflow-y-auto">
+            <div className="p-5 flex flex-col items-center text-center space-y-3.5 overflow-y-auto">
               
               {/* Main White QR Container */}
-              <div className="p-5 bg-white rounded-2xl border-2 border-gray-100 shadow-xl flex flex-col items-center justify-center w-full max-w-[240px]">
-                <div id="qr-code-svg-container" className="p-2 bg-white rounded-xl">
+              <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-md flex flex-col items-center justify-center w-full max-w-[210px]">
+                <div id="qr-code-svg-container" className="p-1 bg-white rounded-lg">
                   <QRCodeSVG 
                     id="qr-code-svg"
                     value={shareUrl}
-                    size={160}
+                    size={140}
                     level="H"
                     includeMargin={false}
                   />
                 </div>
-                <span className="mt-3 text-[10px] font-black text-blue-600 tracking-widest uppercase flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                  <ShieldCheck size={12} /> Ai Appsec Verified
+                <span className="mt-2.5 text-[9px] font-black text-blue-600 tracking-widest uppercase flex items-center gap-1 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                  <ShieldCheck size={11} /> Ai Appsec Verified
                 </span>
               </div>
 
@@ -171,9 +171,9 @@ const Navbar = () => {
                     img.src = "data:image/svg+xml;base64," + btoa(svgData);
                   }
                 }}
-                className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-2 border border-gray-200"
+                className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold text-[11px] rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 border border-gray-200"
               >
-                <span>📥 Download QR Code Image</span>
+                <span>📥 Download QR Image</span>
               </button>
 
               {/* URL Input Box + Copy Button */}
@@ -182,29 +182,29 @@ const Navbar = () => {
                   type="text" 
                   readOnly 
                   value={shareUrl}
-                  className="w-full pl-3.5 pr-24 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono font-semibold text-gray-700 outline-none"
+                  className="w-full pl-3 pr-20 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-mono font-semibold text-gray-700 outline-none"
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="absolute right-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg transition flex items-center gap-1 cursor-pointer"
+                  className="absolute right-1 px-2.5 py-1.5 bg-gray-900 hover:bg-black text-white text-[11px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer"
                 >
                   {copied ? (
-                    <span className="text-emerald-400 flex items-center gap-1"><Check size={12} /> Copied!</span>
+                    <span className="text-emerald-400 flex items-center gap-1"><Check size={11} /> Copied!</span>
                   ) : (
-                    <span className="flex items-center gap-1"><Copy size={12} /> Copy</span>
+                    <span className="flex items-center gap-1"><Copy size={11} /> Copy</span>
                   )}
                 </button>
               </div>
 
               {/* Social Share Buttons */}
-              <div className="w-full pt-3 border-t border-gray-100">
-                <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2.5">Share directly to</p>
+              <div className="w-full pt-2.5 border-t border-gray-100">
+                <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Share directly to</p>
                 <div className="grid grid-cols-3 gap-2">
                   <a 
                     href={`https://twitter.com/intent/tweet?text=Check%20out%20my%20Ai%20Appsec%20lab%20profile!&url=${encodeURIComponent(shareUrl)}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="py-2.5 px-2 bg-slate-900 text-white rounded-xl text-[11px] font-bold hover:bg-black transition text-center"
+                    className="py-2 px-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition text-center"
                   >
                     Twitter / X
                   </a>
@@ -212,7 +212,7 @@ const Navbar = () => {
                     href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="py-2.5 px-2 bg-emerald-600 text-white rounded-xl text-[11px] font-bold hover:bg-emerald-700 transition text-center"
+                    className="py-2 px-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold hover:bg-emerald-700 transition text-center"
                   >
                     WhatsApp
                   </a>
@@ -220,7 +220,7 @@ const Navbar = () => {
                     href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="py-2.5 px-2 bg-blue-600 text-white rounded-xl text-[11px] font-bold hover:bg-blue-700 transition text-center"
+                    className="py-2 px-2 bg-blue-600 text-white rounded-xl text-[10px] font-bold hover:bg-blue-700 transition text-center"
                   >
                     LinkedIn
                   </a>
