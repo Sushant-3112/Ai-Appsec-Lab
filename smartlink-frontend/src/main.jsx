@@ -4,8 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import axios from 'axios';
 
-// Explicitly connect the frontend to the backend server
-axios.defaults.baseURL = 'http://127.0.0.1:5000';
+// Dynamically connect the frontend to live backend or localhost
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://ai-appsec-lab.onrender.com';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
