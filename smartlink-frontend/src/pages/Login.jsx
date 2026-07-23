@@ -1,35 +1,30 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
+import GoogleAuthModal from '../components/GoogleAuthModal';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const { login, googleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Official Google OAuth Trigger
-  const triggerGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setGoogleLoading(true);
-      setError('');
-      try {
-        await googleLogin(tokenResponse.access_token);
-        navigate('/dashboard');
-      } catch (err) {
-        setError(err.response?.data?.message || 'Google Login failed');
-      } finally {
-        setGoogleLoading(false);
-      }
-    },
-    onError: (errorResponse) => {
-      console.error("Google OAuth error:", errorResponse);
-      setError("Google OAuth authentication failed");
+  const performGoogleLogin = async (token, userPayload = {}) => {
+    setGoogleLoading(true);
+    setError('');
+    try {
+      await googleLogin(token, userPayload);
+      setIsGoogleModalOpen(false);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google Login failed');
+    } finally {
+      setGoogleLoading(false);
     }
-  });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,6 +39,13 @@ const Login = () => {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
       
+      {/* Google Auth Modal Dialog */}
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onAuthenticate={performGoogleLogin}
+      />
+
       {/* Left Column: Login Form */}
       <div className="w-full md:w-[48%] flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-20 z-10 bg-white">
         
@@ -118,7 +120,7 @@ const Login = () => {
             <button
               type="button"
               disabled={googleLoading}
-              onClick={() => triggerGoogleLogin()}
+              onClick={() => setIsGoogleModalOpen(true)}
               className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
             >
               {googleLoading ? (
