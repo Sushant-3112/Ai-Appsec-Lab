@@ -164,9 +164,7 @@ const TemplateEditor = () => {
     else setUploadingBg(true);
 
     try {
-      const res = await axios.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await axios.post('/api/upload', formData);
       setFormData(prev => ({
         ...prev,
         [type]: res.data.url
@@ -181,73 +179,171 @@ const TemplateEditor = () => {
   };
 
   // ─── Live Preview Component ───
-  const LivePreview = ({ className = '' }) => (
-    <div className={`relative w-full max-w-[320px] aspect-[9/18.5] rounded-[40px] overflow-hidden shadow-2xl bg-black mx-auto ${className}`}>
-      {/* Background */}
-      {(formData.bgImage || originalTemplate.bgImage) && (
-        <img
-          src={formData.bgImage || originalTemplate.bgImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-          onError={(e) => { e.target.style.display = 'none'; }}
-        />
-      )}
-      <div className={`absolute inset-0 ${originalTemplate.bgOverlay}`}></div>
+  const LivePreview = ({ className = '' }) => {
+    const isLinktree = originalTemplate.variant?.startsWith('linktree');
+    const isBeachCard = originalTemplate.variant === 'beach-card';
 
-      {/* Content */}
-      <div className="relative z-10 w-full h-full px-6 py-10 flex flex-col items-center">
-        {/* Avatar */}
-        <div className="mt-2 mb-3 w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-white/20 shadow-md bg-white/10">
-          {(formData.avatar || originalTemplate.avatar) ? (
-            <img
-              src={formData.avatar || originalTemplate.avatar}
-              alt={formData.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white/60 text-2xl font-bold">${formData.name?.charAt(0) || '?'}</div>`;
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/60 text-2xl font-bold">
-              {formData.name?.charAt(0) || '?'}
+    if (isLinktree) {
+      return (
+        <div
+          className={`relative w-full max-w-[320px] aspect-[9/18.5] rounded-[40px] overflow-hidden shadow-2xl mx-auto ${className}`}
+          style={{ background: originalTemplate.bgStyle || '#111' }}
+        >
+          {/* Decorative blobs */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-60"
+              style={{ background: originalTemplate.id === 12 ? '#ff6f00' : originalTemplate.id === 13 ? '#f9a825' : '#e91e63' }} />
+            <div className="absolute top-1/3 -left-10 w-32 h-32 rounded-full opacity-50"
+              style={{ background: originalTemplate.id === 12 ? '#e91e8c' : originalTemplate.id === 13 ? '#000' : '#ff6f00' }} />
+            <div className="absolute bottom-1/4 right-0 w-28 h-28 rounded-full opacity-40"
+              style={{ background: originalTemplate.id === 12 ? '#00bcd4' : originalTemplate.id === 13 ? '#1565c0' : '#c6f135' }} />
+          </div>
+
+          <div className="relative z-10 w-full h-full px-5 py-8 flex flex-col items-center">
+            <div className="mt-2 mb-3 w-[68px] h-[68px] rounded-full bg-white/20 border-2 border-white/30 shadow-md flex items-center justify-center overflow-hidden">
+              {formData.avatar ? (
+                <img src={formData.avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-extrabold text-xl">
+                  {formData.name?.charAt(0) || originalTemplate.avatarInitials || '?'}
+                </span>
+              )}
             </div>
-          )}
+            <h3 className="font-bold text-base mb-0.5 text-center text-white">{formData.name || 'Your Name'}</h3>
+            <p className="text-[10px] text-center text-white/80 mb-5 max-w-[85%]">{formData.description || 'Your bio'}</p>
+            <div className="flex items-center gap-2 mb-4">
+              <button className="flex items-center gap-1.5 bg-white text-gray-900 text-[11px] font-bold px-4 py-1.5 rounded-full shadow">
+                🔔 Subscribe
+              </button>
+            </div>
+            <p className="text-white font-bold text-[11px] mb-3 self-start ml-1">Product Design</p>
+            <div className="w-full flex flex-col gap-2.5 flex-grow">
+              {formData.buttons.map((btn) => (
+                <button key={btn.id} className={`w-full py-3 px-4 rounded-[40px] text-[12px] shadow-sm ${originalTemplate.btnClass}`}>
+                  {btn.label || 'Untitled'}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-4 mt-4 text-white">
+              <Twitter size={18} className="opacity-80" />
+              <Youtube size={18} className="opacity-80" />
+              <Instagram size={18} className="opacity-80" />
+              <Music size={18} className="opacity-80" />
+            </div>
+          </div>
         </div>
+      );
+    }
 
-        {/* Name & Bio */}
-        <h3 className={`font-bold text-lg mb-1 text-center tracking-tight ${originalTemplate.textClass}`}>
-          {formData.name || 'Your Name'}
-        </h3>
-        <p className={`text-[11px] text-center font-bold opacity-90 mb-6 max-w-[90%] ${originalTemplate.textClass}`}>
-          {formData.description || 'Your bio goes here'}
-        </p>
-
-        {/* Buttons */}
-        <div className="w-full flex-grow flex flex-col gap-3.5 overflow-y-auto">
-          {formData.buttons.map((btn) => (
-            <button
-              key={btn.id}
-              className={`w-full py-4 px-4 rounded-[40px] font-bold text-[13px] shadow-sm ${originalTemplate.btnClass}`}
-            >
-              {btn.label || 'Untitled'}
-            </button>
-          ))}
-          {formData.buttons.length === 0 && (
-            <div className="text-center text-white/40 text-xs mt-4">No buttons added yet</div>
+    if (isBeachCard) {
+      return (
+        <div className={`relative w-full max-w-[320px] rounded-3xl overflow-hidden shadow-2xl mx-auto ${className}`} style={{ minHeight: '340px' }}>
+          {(formData.bgImage || originalTemplate.bgImage) && (
+            <img src={formData.bgImage || originalTemplate.bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
           )}
+          <div className={`absolute inset-0 ${originalTemplate.bgOverlay}`} />
+          <div className="relative z-10 flex flex-col items-center px-6 py-8 text-center">
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/40 shadow-lg mb-3 bg-white/20 flex items-center justify-center">
+              {formData.avatar ? (
+                <img src={formData.avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-bold text-xl">{formData.name?.charAt(0) || originalTemplate.avatarInitials || '?'}</span>
+              )}
+            </div>
+            <h3 className="text-white font-extrabold text-lg mb-1 drop-shadow">{formData.name || 'Your Name'}</h3>
+            <p className="text-white/90 text-xs leading-relaxed max-w-[240px] mb-2">{formData.description || 'Your bio'}</p>
+            {originalTemplate.location && <p className="text-white/80 text-xs mb-0.5">📍 {originalTemplate.location}</p>}
+            {originalTemplate.email && <p className="text-white/80 text-xs mb-4">✉ {originalTemplate.email}</p>}
+            <div className="w-full grid grid-cols-2 gap-2 mb-4">
+              {formData.buttons.map((btn) => (
+                <button key={btn.id} className="flex flex-col items-center justify-center gap-1 bg-white/90 text-teal-900 font-semibold py-3 px-2 rounded-2xl text-xs shadow-sm">
+                  <Youtube size={14} className="text-teal-700" />
+                  {btn.label || 'Untitled'}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-4 text-white">
+              <Youtube size={18} className="opacity-80" />
+              <Instagram size={18} className="opacity-80" />
+              <Twitter size={18} className="opacity-80" />
+              <Music size={18} className="opacity-80" />
+            </div>
+          </div>
         </div>
+      );
+    }
 
-        {/* Social Icons */}
-        <div className={`flex gap-5 mb-2 mt-4 ${originalTemplate.socialClass}`}>
-          {formData.socials.music && <Music size={22} className="opacity-90" />}
-          {formData.socials.youtube && <Youtube size={22} className="opacity-90" />}
-          {formData.socials.twitter && <Twitter size={22} className="opacity-90" />}
-          {formData.socials.instagram && <Instagram size={22} className="opacity-90" />}
+    // Default phone preview
+    return (
+      <div className={`relative w-full max-w-[320px] aspect-[9/18.5] rounded-[40px] overflow-hidden shadow-2xl bg-black mx-auto ${className}`}>
+        {/* Background */}
+        {(formData.bgImage || originalTemplate.bgImage) && (
+          <img
+            src={formData.bgImage || originalTemplate.bgImage}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-80"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        )}
+        <div className={`absolute inset-0 ${originalTemplate.bgOverlay}`}></div>
+
+        {/* Content */}
+        <div className="relative z-10 w-full h-full px-6 py-10 flex flex-col items-center">
+          {/* Avatar */}
+          <div className="mt-2 mb-3 w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-white/20 shadow-md bg-white/10">
+            {(formData.avatar || originalTemplate.avatar) ? (
+              <img
+                src={formData.avatar || originalTemplate.avatar}
+                alt={formData.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white/60 text-2xl font-bold">${formData.name?.charAt(0) || '?'}</div>`;
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white/60 text-2xl font-bold">
+                {formData.name?.charAt(0) || '?'}
+              </div>
+            )}
+          </div>
+
+          {/* Name & Bio */}
+          <h3 className={`font-bold text-lg mb-1 text-center tracking-tight ${originalTemplate.textClass}`}>
+            {formData.name || 'Your Name'}
+          </h3>
+          <p className={`text-[11px] text-center font-bold opacity-90 mb-6 max-w-[90%] ${originalTemplate.textClass}`}>
+            {formData.description || 'Your bio goes here'}
+          </p>
+
+          {/* Buttons */}
+          <div className="w-full flex-grow overflow-y-auto px-1">
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
+              {formData.buttons.map((btn) => (
+                <button
+                  key={btn.id}
+                  className={`w-full flex items-center justify-center py-4 px-4 rounded-[24px] font-bold text-[13px] shadow-sm hover:scale-[1.02] transition-transform ${originalTemplate.btnClass}`}
+                >
+                  <span className="truncate">{btn.label || 'Untitled'}</span>
+                </button>
+              ))}
+            </div>
+            {formData.buttons.length === 0 && (
+              <div className="text-center text-white/40 text-xs mt-4">No buttons added yet</div>
+            )}
+          </div>
+
+          {/* Social Icons */}
+          <div className={`flex gap-5 mb-2 mt-4 ${originalTemplate.socialClass}`}>
+            {formData.socials.music && <Music size={22} className="opacity-90" />}
+            {formData.socials.youtube && <Youtube size={22} className="opacity-90" />}
+            {formData.socials.twitter && <Twitter size={22} className="opacity-90" />}
+            {formData.socials.instagram && <Instagram size={22} className="opacity-90" />}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f3f1] pt-24 pb-16 font-sans text-[#111827]">

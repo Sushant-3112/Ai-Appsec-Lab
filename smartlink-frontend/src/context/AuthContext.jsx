@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const googleLogin = async (token) => {
-    const res = await axios.post('/api/auth/google', { token });
+  const googleLogin = async (token, userPayload = {}) => {
+    const res = await axios.post('/api/auth/google', { token, ...userPayload });
     localStorage.setItem('token', res.data.access_token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.access_token}`;
     setUser(res.data.user);

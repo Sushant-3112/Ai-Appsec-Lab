@@ -1,6 +1,7 @@
 import { Instagram, Twitter, Youtube, Music } from 'lucide-react';
 
 const templatesData = [
+  // ── Existing templates ──
   {
     id: 1,
     name: "Katy Delma",
@@ -72,6 +73,139 @@ const templatesData = [
     btnClass: "bg-[#c4493e] text-white border-b-4 border-[#852a22]",
     socialClass: "text-white",
     buttons: ["Venues", "Live Recordings", "Talent Agent"]
+  },
+  {
+    id: 7,
+    name: "Voice Messages",
+    description: "Listeners can send in questions and submissions for your next episode",
+    bgImage: "",
+    bgOverlay: "bg-[#4b9b82]",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-800 shadow-sm flex-row justify-start text-left",
+    socialClass: "text-emerald-100",
+    buttons: ["I have a question for you about your podcast", "What is web design these days?", "Are you going to the mall today?"]
+  },
+  {
+    id: 8,
+    name: "Library",
+    description: "All the audio you've ever created or uploaded to Anchor.",
+    bgImage: "",
+    bgOverlay: "bg-[#6348c5]",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-800 shadow-sm flex-row justify-start text-left",
+    socialClass: "text-[#d1c4e9]",
+    buttons: ["Intro song", "Outro song", "My thoughts today", "Interview with Dave"]
+  },
+  {
+    id: 9,
+    name: "Interludes",
+    description: "Search interludes and find your favorites.",
+    bgImage: "",
+    bgOverlay: "bg-[#ea8bbb]",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-800 shadow-sm flex-row justify-start text-left",
+    socialClass: "text-[#fce4ec]",
+    buttons: ["95 West", "A Clue", "Alley", "Anomaly", "Attn"]
+  },
+  {
+    id: 10,
+    name: "Sounds",
+    description: "Search sounds and find your favorites.",
+    bgImage: "",
+    bgOverlay: "bg-[#3f99a8]",
+    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=150",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-800 shadow-sm flex-row justify-start text-left",
+    socialClass: "text-[#b2dfdb]",
+    buttons: ["Popcorn", "Synth Rise", "Attention", "Bling", "Mystery"]
+  },
+  {
+    id: 11,
+    name: "Songs",
+    description: "Create a 30 second transition out of any song.",
+    bgImage: "",
+    bgOverlay: "bg-[#3f67c4]",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-800 shadow-sm flex-row justify-start text-left",
+    socialClass: "text-[#bbdefb]",
+    buttons: ["Electro Work Jams", "Dance Party", "Beach Vibes", "Pump Up"]
+  },
+
+  // ── NEW: Image 1 – Variant A: Teal/Orange/Pink abstract, dark pill buttons ──
+  {
+    id: 12,
+    name: "Vivi Shin",
+    description: "Product Designer in Sydney",
+    bgImage: "",
+    bgOverlay: "",
+    bgStyle: "linear-gradient(135deg, #00bcd4 0%, #00bcd4 35%, #ff6f00 60%, #e91e8c 100%)",
+    avatar: "",
+    avatarInitials: "VS",
+    textClass: "text-white",
+    btnClass: "bg-[#1a1a2e] text-white font-semibold",
+    socialClass: "text-white",
+    variant: "linktree-a",
+    buttons: ["Digital Product", "Physical Product", "Avid Blogger", "Medium", "Brunch"],
+    category: "Influencer and Creator"
+  },
+
+  // ── NEW: Image 1 – Variant B: Blue/Black/Yellow abstract, white pill buttons ──
+  {
+    id: 13,
+    name: "Vivi Shin",
+    description: "Product Designer in Sydney",
+    bgImage: "",
+    bgOverlay: "",
+    bgStyle: "linear-gradient(135deg, #1565c0 0%, #0d47a1 30%, #111111 60%, #f9a825 100%)",
+    avatar: "",
+    avatarInitials: "VS",
+    textClass: "text-white",
+    btnClass: "bg-white text-gray-900 font-semibold",
+    socialClass: "text-white",
+    variant: "linktree-b",
+    buttons: ["Digital Product", "Physical Product", "Avid Blogger", "Medium", "Brunch"],
+    category: "Influencer and Creator"
+  },
+
+  // ── NEW: Image 1 – Variant C: Purple/Orange/Magenta abstract, yellow-green pill buttons ──
+  {
+    id: 14,
+    name: "Vivi Shin",
+    description: "Product Designer in Sydney",
+    bgImage: "",
+    bgOverlay: "",
+    bgStyle: "linear-gradient(135deg, #1a237e 0%, #4a148c 25%, #ff6f00 55%, #e91e63 80%, #ff6f00 100%)",
+    avatar: "",
+    avatarInitials: "VS",
+    textClass: "text-white",
+    btnClass: "bg-[#c6f135] text-gray-900 font-semibold",
+    socialClass: "text-white",
+    variant: "linktree-c",
+    buttons: ["Digital Product", "Physical Product", "Avid Blogger", "Medium", "Brunch"],
+    category: "Influencer and Creator"
+  },
+
+  // ── NEW: Image 2 – Beach/Scenic background, card-style wide link buttons ──
+  {
+    id: 15,
+    name: "Sushant Sharma",
+    description: "An effective Instagram bio concisely conveys your personality, niche, or purpose, often using emojis to show rather than tell.",
+    bgImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1200",
+    bgOverlay: "bg-teal-900/30",
+    avatar: "",
+    avatarInitials: "SS",
+    textClass: "text-white",
+    btnClass: "bg-white/90 text-teal-900 font-semibold",
+    socialClass: "text-white",
+    variant: "beach-card",
+    location: "Mumbai, India",
+    email: "sushant.sharma@somaiya.edu",
+    buttons: ["TheBoys", "From"],
+    category: "Social Media"
   }
 ];
 

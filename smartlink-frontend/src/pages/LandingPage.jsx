@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import templatesData from '../data/templateData';
+import { Instagram, Twitter, Youtube, Music } from 'lucide-react';
 
 const LandingPage = () => {
   const [username, setUsername] = useState('');
@@ -121,6 +123,263 @@ const LandingPage = () => {
              </div>
            </div>
         </div>
+      </section>
+
+      {/* SECTION 3.5: Multiple Templates Showcase */}
+      <section className="bg-[#f3f3f1] py-[160px] overflow-hidden flex flex-col items-center">
+         <div className="text-center px-4 md:px-12 mb-16 max-w-4xl mx-auto">
+           <h2 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] leading-[1] font-black tracking-[-0.04em] mb-6 text-[#111827]">
+             Beautiful templates for every brand
+           </h2>
+           <p className="text-[1.1rem] sm:text-[1.3rem] font-medium text-gray-700 leading-relaxed mb-12">
+             Choose from hundreds of beautifully designed multiple templates to make your profile stand out on the webpage. From simple links to immersive audio experiences.
+           </p>
+         </div>
+         
+         {/* Audio App Multiples Showcase (Screenshot Recreation) */}
+         <div className="w-full relative px-4 overflow-x-auto pb-12 hide-scrollbar">
+           <div className="flex gap-4 sm:gap-6 w-max mx-auto px-4 md:px-12 pb-10">
+
+             {/* Restored Multiple Templates */}
+             {templatesData && templatesData.slice(0, 3).map(template => (
+               <div 
+                 key={template.id} 
+                 className="relative w-[280px] h-[580px] rounded-[40px] overflow-hidden shadow-2xl hover:-translate-y-4 transition-transform duration-500 cursor-pointer group bg-black flex-shrink-0 border-8 border-gray-900"
+               >
+                 {template.bgImage && (
+                   <img src={template.bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                 )}
+                 <div className={`absolute inset-0 ${template.bgOverlay}`}></div>
+                 
+                 <div className="relative z-10 w-full h-full px-6 py-10 flex flex-col items-center">
+                   <div className="mt-2 mb-3 w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-white/20 shadow-md">
+                      <img src={template.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'} alt={template.name} className="w-full h-full object-cover" />
+                   </div>
+                   <h3 className={`font-bold text-lg mb-1 text-center tracking-tight ${template.textClass}`}>{template.name}</h3>
+                   <p className={`text-[11px] text-center font-bold opacity-90 mb-6 max-w-[90%] ${template.textClass}`}>{template.description}</p>
+                   
+                   <div className="w-full flex-grow flex flex-col gap-3.5">
+                     {template.buttons && template.buttons.map((btn, i) => (
+                        <button key={i} className={`w-full py-4 px-4 rounded-[40px] font-bold text-[13px] shadow-sm transition-all hover:scale-[1.02] ${template.btnClass}`}>
+                          {btn}
+                        </button>
+                     ))}
+                   </div>
+           
+                   <div className={`flex gap-5 mb-2 mt-4 ${template.socialClass}`}>
+                     <Music size={22} className="opacity-90 hover:opacity-100 transition" />
+                     <Youtube size={22} className="opacity-90 hover:opacity-100 transition" />
+                     <Twitter size={22} className="opacity-90 hover:opacity-100 transition" />
+                     <Instagram size={22} className="opacity-90 hover:opacity-100 transition" />
+                   </div>
+                 </div>
+               </div>
+             ))}
+             
+             {/* Phone 1: Green - Voice Messages */}
+             <div className="relative w-[260px] h-[550px] rounded-[40px] overflow-hidden shadow-2xl bg-[#4b9b82] flex-shrink-0 border-8 border-gray-900 flex flex-col">
+               <div className="px-5 pt-12 pb-4 text-center text-white relative z-10">
+                  <div className="absolute top-6 left-5 opacity-70"><span className="text-lg">×</span></div>
+                  <h3 className="font-bold text-lg">Voice Messages</h3>
+                  <p className="text-[10px] opacity-90 leading-tight mt-1 px-2">Listeners can send in questions and submissions for your next episode</p>
+               </div>
+               <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-24 scrollbar-hide">
+                 {[
+                   {name: 'Sandra Smith', text: 'I have a question for you about your podcast', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50'},
+                   {name: 'Hudson Darling', text: 'What is web design these days?', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50'},
+                   {name: 'Mike Magnice', text: 'I feel like muffins taste better when your toast the bottom.', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=50'},
+                   {name: 'Michelle Wright', text: 'Are you going to the mall today?', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50'},
+                   {name: 'Frankie Samone', text: 'Where are you traveling now?', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50'}
+                 ].map((msg, i) => (
+                   <div key={i} className="bg-white rounded-lg p-3 shadow-sm flex gap-3 relative">
+                     {i < 2 && <div className="absolute left-1.5 top-5 w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>}
+                     <img src={msg.img} className="w-8 h-8 rounded-full object-cover ml-1" alt={msg.name} />
+                     <div>
+                       <h4 className="text-[12px] font-bold text-gray-800">{msg.name}</h4>
+                       <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{msg.text}</p>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+               {/* Bottom Nav Overlay */}
+               <div className="absolute bottom-0 w-full h-[80px] bg-gradient-to-t from-gray-900 to-transparent flex justify-center items-end pb-4 gap-8 z-20">
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-10 h-10 rounded-full bg-emerald-300 flex items-center justify-center text-white"><span className="text-xl">+</span></div><span className="text-[8px] text-white font-bold">Voice Messages</span></div>
+                  <div className="flex flex-col items-center gap-1"><div className="w-10 h-10 rounded-full bg-rose-400 flex items-center justify-center text-white shadow-[0_0_15px_rgba(251,113,133,0.5)]">🎤</div><span className="text-[8px] text-white font-bold">Record</span></div>
+               </div>
+             </div>
+
+             {/* Phone 2: Purple - Library */}
+             <div className="relative w-[260px] h-[550px] rounded-[40px] overflow-hidden shadow-2xl bg-[#6348c5] flex-shrink-0 border-8 border-gray-900 flex flex-col">
+               <div className="px-5 pt-12 pb-4 text-center text-white relative z-10">
+                  <div className="absolute top-6 left-5 opacity-70"><span className="text-lg">×</span></div>
+                  <h3 className="font-bold text-lg">Library</h3>
+                  <p className="text-[10px] opacity-90 leading-tight mt-1 px-4">All the audio you've ever created or uploaded to Anchor.</p>
+                  <button className="mt-3 bg-white/20 px-6 py-1.5 rounded-full text-xs font-bold w-[120px]">Import</button>
+               </div>
+               <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-24 scrollbar-hide">
+                 {[
+                   {title: 'Intro song', t1: '1m ago', t2: '3m'},
+                   {title: 'Outro song', t1: '5m ago', t2: '2m'},
+                   {title: 'My thoughts today', t1: '6m ago', t2: '3m'},
+                   {title: 'Interview with Dave', t1: '10m ago', t2: '10m'},
+                   {title: 'Recording with Penelope', t1: '15m ago', t2: '22m'}
+                 ].map((item, i) => (
+                   <div key={i} className="bg-white rounded-lg p-3 shadow-sm flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-[#6348c5] flex items-center justify-center text-white text-xs">▶</div>
+                       <div>
+                         <h4 className="text-[12px] font-bold text-gray-800">{item.title}</h4>
+                         <div className="flex gap-2 text-[9px] text-gray-400 mt-0.5"><span>{item.t1}</span><span>{item.t2}</span></div>
+                       </div>
+                     </div>
+                     <div className="flex flex-col items-center gap-1">
+                       <div className="flex gap-0.5"><div className="w-1 h-1 bg-gray-300 rounded-full"></div><div className="w-1 h-1 bg-gray-300 rounded-full"></div><div className="w-1 h-1 bg-gray-300 rounded-full"></div></div>
+                       <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 text-xs">+</div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+               {/* Bottom Nav Overlay */}
+               <div className="absolute bottom-0 w-full h-[80px] bg-gradient-to-t from-gray-900 to-transparent flex justify-center items-end pb-4 gap-4 z-20 px-2">
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs">🎤</div><span className="text-[7px] text-white font-bold">Record</span></div>
+                  <div className="flex flex-col items-center gap-1"><div className="w-10 h-10 rounded-full bg-[#6348c5] flex items-center justify-center text-white shadow-[0_0_15px_rgba(99,72,197,0.6)]">📁</div><span className="text-[7px] text-white font-bold">Library</span></div>
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-pink-400 flex items-center justify-center text-white text-xs">→</div><span className="text-[7px] text-white font-bold">Interludes</span></div>
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-teal-400 flex items-center justify-center text-white text-xs">🥁</div><span className="text-[7px] text-white font-bold">Sounds</span></div>
+               </div>
+             </div>
+
+             {/* Phone 3: Pink - Interludes */}
+             <div className="relative w-[260px] h-[550px] rounded-[40px] overflow-hidden shadow-2xl bg-[#ea8bbb] flex-shrink-0 border-8 border-gray-900 flex flex-col">
+               <div className="px-5 pt-12 pb-2 text-center text-white relative z-10">
+                  <div className="absolute top-6 left-5 opacity-70"><span className="text-lg">×</span></div>
+                  <h3 className="font-bold text-lg mb-3">Interludes</h3>
+                  <div className="w-full bg-white/20 rounded-full flex items-center px-3 py-2 text-[11px]">
+                     <span className="opacity-70 mr-2">🔍</span> Search interludes
+                  </div>
+               </div>
+               <div className="flex-1 overflow-y-auto px-4 space-y-4 pb-24 scrollbar-hide pt-2">
+                 <div>
+                   <div className="flex justify-between items-center text-[10px] text-white/80 font-bold uppercase tracking-wider mb-2"><span>Favorites</span></div>
+                   <div className="space-y-2">
+                     {[{title: '95 West', t: '00:03'}, {title: 'A Clue', t: '00:08'}].map((item, i) => (
+                       <div key={i} className="bg-white rounded-lg p-2 shadow-sm flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                           <div className="w-8 h-8 rounded-full bg-[#ea8bbb]/20 flex items-center justify-center text-[#ea8bbb] text-xs">▶</div>
+                           <div><h4 className="text-[12px] font-bold text-gray-800 leading-tight">{item.title}</h4><span className="text-[9px] text-gray-400">{item.t}</span></div>
+                         </div>
+                         <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 text-xs">+</div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+                 <div>
+                   <div className="flex justify-between items-center text-[10px] text-white/80 font-bold uppercase tracking-wider mb-2"><span>Ominous</span><span className="opacity-50">^</span></div>
+                   <div className="space-y-2">
+                     {[{title: 'Alley', t: '00:02'}, {title: 'Anomaly', t: '00:04'}, {title: 'Attn', t: '00:01'}].map((item, i) => (
+                       <div key={i} className="bg-white rounded-lg p-2 shadow-sm flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                           <div className="w-8 h-8 rounded-full bg-[#ea8bbb]/20 flex items-center justify-center text-[#ea8bbb] text-xs">▶</div>
+                           <div><h4 className="text-[12px] font-bold text-gray-800 leading-tight">{item.title}</h4><span className="text-[9px] text-gray-400">{item.t}</span></div>
+                         </div>
+                         <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 text-xs">+</div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               </div>
+               {/* Bottom Nav Overlay */}
+               <div className="absolute bottom-0 w-full h-[80px] bg-gradient-to-t from-gray-900 to-transparent flex justify-center items-end pb-4 gap-4 z-20 px-2">
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-[#6348c5] flex items-center justify-center text-white text-xs">📁</div><span className="text-[7px] text-white font-bold">Library</span></div>
+                  <div className="flex flex-col items-center gap-1"><div className="w-10 h-10 rounded-full bg-[#ea8bbb] flex items-center justify-center text-white shadow-[0_0_15px_rgba(234,139,187,0.6)]">→</div><span className="text-[7px] text-white font-bold">Interludes</span></div>
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-teal-400 flex items-center justify-center text-white text-xs">🥁</div><span className="text-[7px] text-white font-bold">Sounds</span></div>
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">♫</div><span className="text-[7px] text-white font-bold">Songs</span></div>
+               </div>
+             </div>
+
+             {/* Phone 4: Teal - Sounds */}
+             <div className="relative w-[260px] h-[550px] rounded-[40px] overflow-hidden shadow-2xl bg-[#3f99a8] flex-shrink-0 border-8 border-gray-900 flex flex-col">
+               <div className="px-5 pt-12 pb-2 text-center text-white relative z-10">
+                  <div className="absolute top-6 left-5 opacity-70"><span className="text-lg">×</span></div>
+                  <h3 className="font-bold text-lg mb-3">Sounds</h3>
+                  <div className="w-full bg-white/20 rounded-full flex items-center px-3 py-2 text-[11px]">
+                     <span className="opacity-70 mr-2">🔍</span> Search sounds
+                  </div>
+               </div>
+               <div className="flex-1 overflow-y-auto px-4 space-y-4 pb-24 scrollbar-hide pt-2">
+                 <div>
+                   <div className="flex justify-between items-center text-[10px] text-white/80 font-bold uppercase tracking-wider mb-2"><span>Favorites</span></div>
+                   <div className="space-y-2">
+                     {[{title: 'Popcorn', t: '00:07'}, {title: 'Synth Rise', t: '00:03'}].map((item, i) => (
+                       <div key={i} className="bg-white rounded-lg p-2 shadow-sm flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                           <div className="w-8 h-8 rounded-full bg-[#3f99a8] flex items-center justify-center text-white text-xs">▶</div>
+                           <div><h4 className="text-[12px] font-bold text-gray-800 leading-tight">{item.title}</h4><span className="text-[9px] text-gray-400">{item.t}</span></div>
+                         </div>
+                         <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 text-xs">+</div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+                 <div>
+                   <div className="flex justify-between items-center text-[10px] text-white/80 font-bold uppercase tracking-wider mb-2"><span>Chimes</span><span className="opacity-50">^</span></div>
+                   <div className="space-y-2">
+                     {[{title: 'Attention', t: '00:01'}, {title: 'Bling', t: '00:03'}, {title: 'Mystery', t: '00:05'}].map((item, i) => (
+                       <div key={i} className="bg-white rounded-lg p-2 shadow-sm flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                           <div className="w-8 h-8 rounded-full bg-[#3f99a8] flex items-center justify-center text-white text-xs">▶</div>
+                           <div><h4 className="text-[12px] font-bold text-gray-800 leading-tight">{item.title}</h4><span className="text-[9px] text-gray-400">{item.t}</span></div>
+                         </div>
+                         <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 text-xs">+</div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               </div>
+               {/* Bottom Nav Overlay */}
+               <div className="absolute bottom-0 w-full h-[80px] bg-gradient-to-t from-gray-900 to-transparent flex justify-center items-end pb-4 gap-4 z-20 px-2">
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-[#ea8bbb] flex items-center justify-center text-white text-xs">→</div><span className="text-[7px] text-white font-bold">Interludes</span></div>
+                  <div className="flex flex-col items-center gap-1"><div className="w-10 h-10 rounded-full bg-[#3f99a8] flex items-center justify-center text-white shadow-[0_0_15px_rgba(63,153,168,0.6)]">🥁</div><span className="text-[7px] text-white font-bold">Sounds</span></div>
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">♫</div><span className="text-[7px] text-white font-bold">Songs</span></div>
+               </div>
+             </div>
+
+             {/* Phone 5: Blue - Songs */}
+             <div className="relative w-[260px] h-[550px] rounded-[40px] overflow-hidden shadow-2xl bg-[#3f67c4] flex-shrink-0 border-8 border-gray-900 flex flex-col">
+               <div className="px-5 pt-12 pb-2 text-center text-white relative z-10">
+                  <div className="absolute top-6 left-5 opacity-70"><span className="text-lg">×</span></div>
+                  <h3 className="font-bold text-lg mb-3">Songs</h3>
+                  <div className="w-full bg-white rounded-full flex items-center px-3 py-2 text-[11px] text-gray-500 mb-2">
+                     <span className="opacity-70 mr-2">🔍</span> Search songs
+                  </div>
+                  <p className="text-[9px] opacity-90 leading-tight px-1">Create a 30 second transition out of any song (playable in Anchor only). More info</p>
+               </div>
+               <div className="flex-1 overflow-y-auto px-4 space-y-2 pb-24 scrollbar-hide pt-2">
+                 {[
+                   {title: 'Electro Work Jams', sub: '104 songs', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=50'},
+                   {title: 'Dance Party', sub: '55 songs', img: 'https://images.unsplash.com/photo-1493225457124-a1a2a5f5cb46?w=50'},
+                   {title: 'Beach Vibes', sub: '80 songs', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=50'},
+                   {title: 'Pump Up', sub: '65 songs', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=50'},
+                   {title: 'Hammock Hanging', sub: '75 songs', img: 'https://images.unsplash.com/photo-1533240332313-0bc499fbf0cb?w=50'}
+                 ].map((item, i) => (
+                   <div key={i} className="bg-white rounded-lg p-2 shadow-sm flex items-center gap-3">
+                     <img src={item.img} className="w-10 h-10 rounded object-cover" alt={item.title} />
+                     <div><h4 className="text-[12px] font-bold text-gray-800 leading-tight">{item.title}</h4><span className="text-[9px] text-gray-400">{item.sub}</span></div>
+                   </div>
+                 ))}
+               </div>
+               {/* Bottom Nav Overlay */}
+               <div className="absolute bottom-0 w-full h-[80px] bg-gradient-to-t from-gray-900 to-transparent flex justify-center items-end pb-4 gap-4 z-20 px-2">
+                  <div className="flex flex-col items-center gap-1 opacity-50"><div className="w-8 h-8 rounded-full bg-[#3f99a8] flex items-center justify-center text-white text-xs">🥁</div><span className="text-[7px] text-white font-bold">Sounds</span></div>
+                  <div className="flex flex-col items-center gap-1"><div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-[0_0_15px_rgba(59,130,246,0.6)]">♫</div><span className="text-[7px] text-white font-bold">Songs</span></div>
+               </div>
+             </div>
+
+           </div>
+         </div>
+         
+         <Link to="/templates" className="mt-8 inline-flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white h-[64px] px-10 rounded-full text-[17px] font-bold transition-all shadow-xl tracking-tight">
+           Explore all templates
+         </Link>
       </section>
 
       {/* SECTION 4: Dark Blue - Connect with audiences */}
@@ -406,6 +665,72 @@ const LandingPage = () => {
             </div>
 
          </div>
+      </section>
+
+      {/* SECTION 7.5: Analytics - Measure your success */}
+      <section className="bg-[#111827] text-white py-[160px] px-4 md:px-12 flex flex-col justify-center min-h-[90vh] overflow-hidden">
+        <div className="max-w-[1240px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+           <div className="max-w-2xl px-4 lg:px-0 z-10 order-2 lg:order-1">
+             <h2 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] leading-[1] font-[900] tracking-[-0.04em] mb-8 text-white">
+               Measure your success
+             </h2>
+             <p className="text-[1.1rem] sm:text-[1.2rem] font-medium text-gray-300 mb-10 max-w-lg leading-relaxed">
+               Tell advanced users about the usefulness of your website. Gain deep insights into your audience with our advanced analytics dashboard. Monitor clicks, track referrers, and understand exactly what content drives the most engagement.
+             </p>
+             <Link to="/register" className="inline-flex items-center justify-center bg-[#a855f7] hover:bg-[#9333ea] text-white h-[64px] px-10 rounded-full text-[17px] font-bold transition-all shadow-sm tracking-tight w-max">
+               Explore Analytics
+             </Link>
+           </div>
+           
+           <div className="relative w-full h-[600px] hidden lg:block perspective-1000 order-1 lg:order-2">
+             <div className="absolute right-[5%] top-10 w-[450px] h-[400px] bg-white rounded-[24px] shadow-2xl transform rotate-3 z-10 flex flex-col p-6">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                   <h4 className="text-gray-900 text-lg font-bold">Analytics Overview</h4>
+                   <span className="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold">+24.5%</span>
+                </div>
+                
+                {/* Mock Chart */}
+                <div className="flex items-end gap-3 h-40 mb-6">
+                   <div className="w-full bg-indigo-50 rounded-t-lg h-[40%] hover:h-[45%] transition-all"></div>
+                   <div className="w-full bg-indigo-100 rounded-t-lg h-[60%] hover:h-[65%] transition-all"></div>
+                   <div className="w-full bg-indigo-200 rounded-t-lg h-[45%] hover:h-[50%] transition-all"></div>
+                   <div className="w-full bg-indigo-300 rounded-t-lg h-[80%] hover:h-[85%] transition-all"></div>
+                   <div className="w-full bg-indigo-400 rounded-t-lg h-[65%] hover:h-[70%] transition-all"></div>
+                   <div className="w-full bg-indigo-500 rounded-t-lg h-[95%] hover:h-[100%] transition-all relative">
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded">12.4k</div>
+                   </div>
+                   <div className="w-full bg-indigo-600 rounded-t-lg h-[100%] hover:h-[100%] transition-all"></div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <p className="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider">Total Views</p>
+                      <h5 className="text-2xl font-black text-gray-900">142,394</h5>
+                   </div>
+                   <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <p className="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider">Total Clicks</p>
+                      <h5 className="text-2xl font-black text-gray-900">84,102</h5>
+                   </div>
+                </div>
+             </div>
+
+             {/* Floating Elements */}
+             <div className="absolute left-[0%] top-[60%] bg-[#f3f3f1] p-5 rounded-[20px] shadow-2xl transform -rotate-6 z-20 hover:-translate-y-2 transition-transform cursor-pointer w-[200px] flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 flex items-center justify-center shadow-inner">
+                    <span className="text-white text-xs font-bold">IG</span>
+                 </div>
+                 <div>
+                    <h4 className="text-gray-900 text-[18px] font-bold leading-none mb-1">45%</h4>
+                    <p className="text-gray-500 text-[10px] font-semibold">Traffic Source</p>
+                 </div>
+             </div>
+             
+             <div className="absolute right-[-5%] top-[70%] bg-indigo-600 p-4 rounded-2xl shadow-2xl transform rotate-12 z-30 w-[180px] flex items-center justify-between">
+                 <span className="text-white font-bold text-sm">CTR</span>
+                 <span className="bg-white text-indigo-600 px-2 py-1 rounded text-xs font-black">59.2%</span>
+             </div>
+           </div>
+        </div>
       </section>
 
       {/* SECTION 8: Light Gray - Paid Plan Features */}

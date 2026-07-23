@@ -1,6 +1,7 @@
 from flask import request, jsonify, url_for, current_app
 from app import db
-from app.models import User, Link, Analytics
+from app.models import User, Link, Analytics, LinkView, Product
+from datetime import datetime
 from app.routes import api_bp
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
@@ -12,7 +13,25 @@ def get_public_profile(username):
     if not user:
         return jsonify({'message': 'Profile not found'}), 404
         
-    links = Link.query.filter_by(user_id=user.id, is_active=True).order_by(Link.order).all()
+    now = datetime.utcnow()
+    # Filter active links and handle scheduling
+    links = Link.query.filter_by(user_id=user.id, is_active=True).all()
+    
+    filtered_links = []
+    for link in links:
+        # Check start date
+        if link.scheduled_start and link.scheduled_start > now:
+            continue
+        # Check end date
+        if link.scheduled_end and link.scheduled_end < now:
+            continue
+        filtered_links.append(link)
+    
+    # Sort by pinned, then priority, then order
+    filtered_links.sort(key=lambda x: (x.is_pinned, x.priority, -x.order), reverse=True)
+    
+    # Get products
+    products = Product.query.filter_by(user_id=user.id).all()
     
     return jsonify({
         'username': user.username,
@@ -24,8 +43,23 @@ def get_public_profile(username):
             'id': link.id,
             'title': link.title,
             'url': link.url,
-            'type': link.type
-        } for link in links]
+            'type': link.type,
+            'animation': link.animation,
+            'thumbnail': link.thumbnail,
+            'is_pinned': link.is_pinned,
+            'has_password': bool(link.password),
+            'category': link.category,
+            'show_view_count': link.show_view_count,
+            'view_count': LinkView.query.filter_by(link_id=link.id).count() if link.show_view_count else 0
+        } for link in filtered_links],
+        'products': [{
+            'id': p.id,
+            'name': p.name,
+            'description': p.description,
+            'price': p.price,
+            'file_url': p.file_url,
+            'image_url': p.image_url
+        } for p in products]
     }), 200
 
 @api_bp.route('/profile', methods=['PUT'])
@@ -71,14 +105,21 @@ def upload_file():
     if file.filename == '':
         return jsonify({'message': 'No selected file'}), 400
     if file:
-        filename = secure_filename(file.filename)
+        original_filename = secure_filename(file.filename)
+        ext = os.path.splitext(original_filename)[1]
+        if not ext:
+            ext = '.png' # default fallback
+            
+        import uuid
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        
         # Ensure uploads directory exists
         upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
         os.makedirs(upload_folder, exist_ok=True)
         
-        file_path = os.path.join(upload_folder, filename)
+        file_path = os.path.join(upload_folder, unique_filename)
         file.save(file_path)
         
         # Return the public URL
-        file_url = f"http://127.0.0.1:5000/static/uploads/{filename}"
+        file_url = f"{request.host_url}static/uploads/{unique_filename}"
         return jsonify({'url': file_url}), 200

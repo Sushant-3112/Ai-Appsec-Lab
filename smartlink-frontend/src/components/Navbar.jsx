@@ -11,78 +11,74 @@ const Navbar = () => {
   const [isProductsHovered, setIsProductsHovered] = useState(false);
   const [isLearnHovered, setIsLearnHovered] = useState(false);
 
-  const path = location.pathname;
-  const isPublicProfile = path !== '/' && 
-    !path.startsWith('/dashboard') && 
-    !path.startsWith('/login') && 
-    !path.startsWith('/register') && 
-    !path.startsWith('/templates') && 
-    !path.startsWith('/products') && 
-    !path.startsWith('/marketplace') && 
-    !path.startsWith('/discover') && 
-    !path.startsWith('/pricing') && 
-    !path.startsWith('/learn');
-
-  if (isPublicProfile) return null;
+  // Hide global navbar on dedicated full-screen auth pages
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   return (
-    <nav className="absolute top-8 left-0 right-0 z-50 flex justify-center px-4 w-full">
-      <div className="bg-white rounded-[100px] w-full max-w-[1300px] px-6 py-4 flex justify-between items-center transition-all bg-opacity-100 shadow-[0_2px_20px_rgba(0,0,0,0.05)] border border-gray-100 relative">
-        <div className="flex items-center space-x-10">
-          <Link to="/" className="flex items-center text-slate-900 ml-2 group">
-            <span className="font-[900] text-[28px] tracking-[-0.05em] leading-none group-hover:scale-105 transition-transform duration-300">Ai Appsec lab</span>
-            <span className="font-[900] text-[34px] ml-[1px] leading-none mt-1 group-hover:scale-105 transition-transform duration-300">*</span>
+    <header className="sticky top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex justify-between items-center">
+        
+        {/* Left Logo & Navigation Links */}
+        <div className="flex items-center space-x-8">
+          <Link to="/" className="flex items-center text-slate-900 group">
+            <span className="font-black text-2xl tracking-tight group-hover:text-blue-600 transition-colors">Ai Appsec lab</span>
+            <span className="font-black text-2xl text-blue-600 ml-0.5">*</span>
           </Link>
-          <div className="hidden lg:flex items-center space-x-8">
+          
+          <nav className="hidden lg:flex items-center space-x-6">
             <div 
               onMouseEnter={() => setIsProductsHovered(true)}
               onMouseLeave={() => setIsProductsHovered(false)}
+              className="relative py-4"
             >
-              <Link to="/products" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors py-[30px] inline-block">Products</Link>
+              <Link to="/products" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Products</Link>
               {isProductsHovered && (
-                <div className="absolute left-0 top-[85px] pt-1">
+                <div className="absolute left-0 top-full pt-1">
                   <ProductsMenu />
                 </div>
               )}
             </div>
-            <Link to="/templates" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors">Templates</Link>
-            <Link to="/marketplace" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors">Marketplace</Link>
-            <Link to="/discover" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors">Discover</Link>
-            <Link to="/pricing" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors">Pricing</Link>
+            <Link to="/templates" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Templates</Link>
+            <Link to="/marketplace" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Marketplace</Link>
+            <Link to="/discover" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Discover</Link>
+            <Link to="/pricing" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Pricing</Link>
             <div 
               onMouseEnter={() => setIsLearnHovered(true)}
               onMouseLeave={() => setIsLearnHovered(false)}
-              className="relative"
+              className="relative py-4"
             >
-              <Link to="/learn" className="text-gray-500 hover:text-gray-900 font-semibold text-[16px] transition-colors py-[30px] inline-block">Learn</Link>
+              <Link to="/learn" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Learn</Link>
               {isLearnHovered && (
-                <div className="absolute right-[-100px] xl:right-[-250px] top-[85px] pt-1">
+                <div className="absolute right-[-100px] xl:right-[-250px] top-full pt-1">
                   <LearnMenu />
                 </div>
               )}
             </div>
-          </div>
+          </nav>
         </div>
         
-        <div className="flex items-center space-x-4">
+        {/* Right User Auth Actions */}
+        <div className="flex items-center space-x-3">
           {user ? (
             <>
-              <Link to="/dashboard" className="text-[#111827] bg-[#f3f4f6] hover:bg-[#e5e7eb] px-6 py-[20px] rounded-[12px] font-bold text-[16px] transition-colors leading-none tracking-[-0.01em]">Dashboard</Link>
-              <button onClick={logout} className="bg-[#111827] hover:bg-black text-white px-7 py-[20px] rounded-[100px] font-bold text-[16px] transition-colors leading-none tracking-[-0.01em]">
+              <Link to="/dashboard" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all">Dashboard</Link>
+              <button onClick={logout} className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all cursor-pointer">
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-[#111827] bg-[#f3f4f6] hover:bg-[#e5e7eb] px-6 py-[20px] rounded-[12px] font-bold text-[16px] transition-colors leading-none tracking-[-0.01em]">Log in</Link>
-              <Link to="/register" className="bg-[#111827] hover:bg-black text-white px-7 py-[20px] rounded-[100px] font-bold text-[16px] transition-colors leading-none tracking-[-0.01em] shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]">
+              <Link to="/login" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all">Log in</Link>
+              <Link to="/register" className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all shadow-xs">
                 Sign up free
               </Link>
             </>
           )}
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

@@ -2,4 +2,4 @@ from flask import Blueprint
 
 api_bp = Blueprint('api', __name__)
 
-from app.routes import auth, links, profile, analytics
+from . import auth, links, profile, analytics, ai_content, products, ai_product
