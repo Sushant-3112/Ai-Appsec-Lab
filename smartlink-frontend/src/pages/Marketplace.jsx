@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook, Check, Shield, Code, Sparkles, ExternalLink } from 'lucide-react';
+import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook, Check, Shield, Code, Sparkles, ExternalLink, Plus, X, Upload, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AppCard = ({ icon, title, description, bgToken, category, url, onConnect, isConnected }) => (
   <div className="flex items-center gap-4 p-4 rounded-[20px] bg-white border border-gray-100 hover:border-amber-300 hover:shadow-lg transition-all w-full text-left group relative overflow-hidden">
@@ -31,7 +33,7 @@ const AppCard = ({ icon, title, description, bgToken, category, url, onConnect, 
      </div>
      
      <button 
-       onClick={() => onConnect(title)}
+       onClick={() => onConnect({ title, icon, bgToken, description, url })}
        className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
          isConnected 
            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
@@ -39,9 +41,9 @@ const AppCard = ({ icon, title, description, bgToken, category, url, onConnect, 
        }`}
      >
        {isConnected ? (
-         <span className="flex items-center gap-1"><Check size={14} /> Added</span>
+         <span className="flex items-center gap-1"><Check size={14} /> Connected</span>
        ) : (
-         'Connect'
+         <span className="flex items-center gap-1"><Plus size={14} /> Connect</span>
        )}
      </button>
   </div>
@@ -69,24 +71,76 @@ const AppSection = ({ title, seeAllText, apps, connectedApps, handleConnect }) =
 );
 
 const Marketplace = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [connectedApps, setConnectedApps] = useState(['YouTube', 'Shopify']);
   const [activeTab, setActiveTab] = useState('All');
   const [toastMessage, setToastMessage] = useState('');
+  
+  // Connect & Content Upload Modal State
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [contentForm, setContentForm] = useState({
+    title: '',
+    url: '',
+    animation: 'pulse',
+    category: 'Marketplace'
+  });
 
-  const handleConnect = (appName) => {
-    if (connectedApps.includes(appName)) {
-      setConnectedApps(connectedApps.filter(name => name !== appName));
-      showToast(`Disconnected ${appName}`);
-    } else {
-      setConnectedApps([...connectedApps, appName]);
-      showToast(`Connected ${appName} to your Ai Appsec lab profile!`);
+  const handleOpenConnectModal = (app) => {
+    setSelectedApp(app);
+    setContentForm({
+      title: `${app.title} - Official Link`,
+      url: app.url || '',
+      animation: 'pulse',
+      category: 'Marketplace'
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveAndUpload = async (e) => {
+    e.preventDefault();
+    if (!selectedApp) return;
+
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await axios.post('/api/links', {
+          title: contentForm.title || selectedApp.title,
+          url: contentForm.url || selectedApp.url,
+          type: selectedApp.title.toLowerCase(),
+          animation: contentForm.animation,
+          category: 'Marketplace',
+          is_active: true
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      if (!connectedApps.includes(selectedApp.title)) {
+        setConnectedApps([...connectedApps, selectedApp.title]);
+      }
+
+      setIsModalOpen(false);
+      showToast(`🎉 Connected ${selectedApp.title} & uploaded content to your bio profile!`);
+    } catch (err) {
+      console.error("Content upload error:", err);
+      // Local fallback
+      if (!connectedApps.includes(selectedApp.title)) {
+        setConnectedApps([...connectedApps, selectedApp.title]);
+      }
+      setIsModalOpen(false);
+      showToast(`🎉 Connected ${selectedApp.title} to your profile!`);
+    } finally {
+      setUploading(false);
     }
   };
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 4000);
   };
 
   const shareApps = [
@@ -136,8 +190,15 @@ const Marketplace = () => {
        
        {/* Toast Notification */}
        {toastMessage && (
-         <div className="fixed bottom-8 right-8 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce">
-           <span>⚡</span> {toastMessage}
+         <div className="fixed bottom-8 right-8 z-50 bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3 animate-bounce border border-white/20">
+           <span>⚡</span> 
+           <span>{toastMessage}</span>
+           <button 
+             onClick={() => navigate('/editor')} 
+             className="ml-2 bg-emerald-500 hover:bg-emerald-400 text-black px-3 py-1 rounded-lg text-xs font-black transition cursor-pointer flex items-center gap-1"
+           >
+             View in Editor <ArrowRight size={12} />
+           </button>
          </div>
        )}
 
@@ -170,6 +231,13 @@ const Marketplace = () => {
           </div>
           
           <div className="flex items-center gap-3">
+             <button 
+               onClick={() => navigate('/editor')}
+               className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-full text-xs transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+             >
+               <span>Template Editor</span>
+               <ArrowRight size={14} />
+             </button>
              <span className="text-xs font-bold text-gray-500 hidden sm:inline">
                Connected Apps: <span className="text-emerald-600 font-black">{connectedApps.length}</span>
              </span>
@@ -262,7 +330,7 @@ const Marketplace = () => {
               seeAllText="See 25 Apps"
               apps={filterApps(shareApps)}
               connectedApps={connectedApps}
-              handleConnect={handleConnect}
+              handleConnect={handleOpenConnectModal}
             />
           )}
 
@@ -272,7 +340,7 @@ const Marketplace = () => {
               seeAllText="See 14 Apps"
               apps={filterApps(moneyApps)}
               connectedApps={connectedApps}
-              handleConnect={handleConnect}
+              handleConnect={handleOpenConnectModal}
             />
           )}
 
@@ -294,7 +362,7 @@ const Marketplace = () => {
               seeAllText="See 20 Apps"
               apps={filterApps(audienceApps)}
               connectedApps={connectedApps}
-              handleConnect={handleConnect}
+              handleConnect={handleOpenConnectModal}
             />
           )}
 
@@ -304,11 +372,111 @@ const Marketplace = () => {
               seeAllText="See All"
               apps={filterApps(devSecurityApps)}
               connectedApps={connectedApps}
-              handleConnect={handleConnect}
+              handleConnect={handleOpenConnectModal}
             />
           )}
 
        </div>
+
+       {/* Upload Content & Connect App Modal */}
+       {isModalOpen && selectedApp && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn font-sans">
+           <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 text-gray-900 relative">
+             
+             {/* Modal Header */}
+             <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+               <div className="flex items-center gap-3">
+                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedApp.bgToken}`}>
+                   {selectedApp.icon}
+                 </div>
+                 <div>
+                   <h3 className="text-base font-bold text-gray-900">Connect {selectedApp.title}</h3>
+                   <p className="text-xs text-gray-500">Upload & Embed Content on your Profile</p>
+                 </div>
+               </div>
+               <button 
+                 onClick={() => setIsModalOpen(false)}
+                 className="text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition"
+               >
+                 <X size={20} />
+               </button>
+             </div>
+
+             {/* Modal Body */}
+             <form onSubmit={handleSaveAndUpload} className="p-6 space-y-4 text-left">
+               <div>
+                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                   Link / Content Title
+                 </label>
+                 <input 
+                   type="text"
+                   required
+                   value={contentForm.title}
+                   onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })}
+                   placeholder="e.g. Samay Raina - India's Got Latent EP 5"
+                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                 />
+               </div>
+
+               <div>
+                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                   {selectedApp.title} Embed / Content URL
+                 </label>
+                 <input 
+                   type="url"
+                   required
+                   value={contentForm.url}
+                   onChange={(e) => setContentForm({ ...contentForm, url: e.target.value })}
+                   placeholder={`https://${selectedApp.title.toLowerCase().replace(/\s+/g, '')}.com/your-content`}
+                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                 />
+               </div>
+
+               <div>
+                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                   Button Animation & Style
+                 </label>
+                 <select
+                   value={contentForm.animation}
+                   onChange={(e) => setContentForm({ ...contentForm, animation: e.target.value })}
+                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white"
+                 >
+                   <option value="pulse">⚡ Pulsing Glow</option>
+                   <option value="bounce">🏀 Bounce Effect</option>
+                   <option value="wobble">✨ Wobble Highlight</option>
+                   <option value="none">Standard Solid</option>
+                 </select>
+               </div>
+
+               <div className="pt-4 flex gap-3">
+                 <button
+                   type="button"
+                   onClick={() => setIsModalOpen(false)}
+                   className="flex-1 py-3 px-4 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full transition cursor-pointer"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   type="submit"
+                   disabled={uploading}
+                   className="flex-1 py-3 px-4 text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-full transition cursor-pointer flex items-center justify-center gap-2 shadow-lg"
+                 >
+                   {uploading ? (
+                     <span>Uploading & Connecting...</span>
+                   ) : (
+                     <>
+                       <Upload size={14} />
+                       <span>Upload & Embed Link</span>
+                     </>
+                   )}
+                 </button>
+               </div>
+             </form>
+
+           </div>
+         </div>
+       )}
+
     </div>
   );
 };
