@@ -9,7 +9,7 @@ axios.defaults.baseURL = 'http://127.0.0.1:5000';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '747494521695-sbcr3n4067ts43938g3jhvhhe9f9uqh1.apps.googleusercontent.com';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
