@@ -1,0 +1,16 @@
+node_modules
+venv
+.venv
+__pycache__
+*.pyc
+*.sqlite
+*.db
+.DS_Store
+.env
+dist
+build
+temp_puppeteer/node_modules
+smartlink-frontend/node_modules
+smartlink-backend/venv
+smartlink-backend/__pycache__
+smartlink-backend/instance
