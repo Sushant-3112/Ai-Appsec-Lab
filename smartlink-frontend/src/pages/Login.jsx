@@ -1,40 +1,35 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
-import GoogleAuthModal from '../components/GoogleAuthModal';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const { login, googleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const performGoogleLogin = async (token, userPayload = {}) => {
-    setGoogleLoading(true);
-    setError('');
-    try {
-      await googleLogin(token, { require_existing: true, ...userPayload });
-      setIsGoogleModalOpen(false);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Google Login failed: Account not registered in system');
-    } finally {
-      setGoogleLoading(false);
+  // Official Google OAuth Trigger
+  const triggerGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleLoading(true);
+      setError('');
+      try {
+        await googleLogin(tokenResponse.access_token);
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Google Login failed');
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: (errorResponse) => {
+      console.error("Google OAuth error:", errorResponse);
+      setError("Google OAuth authentication failed");
     }
-  };
-
-  // Direct 1-Click Google Authentication for instant login
-  const onGoogleClick = (e) => {
-    e.preventDefault();
-    if (googleLoading) return;
-    performGoogleLogin('mock_google_token_' + Date.now(), {
-      email: 'sushant.sharma@somaiya.edu',
-      name: 'Sushant Sharma'
-    });
-  };
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,28 +44,30 @@ const Login = () => {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
       
-      {/* Left Column: Linktree Style Auth Form */}
-      <div className="w-full md:w-1/2 min-h-screen flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16">
+      {/* Left Column: Login Form */}
+      <div className="w-full md:w-[48%] flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-20 z-10 bg-white">
         
-        {/* Top Logo */}
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center text-slate-900 group">
-            <span className="font-black text-2xl tracking-tight text-gray-900">Ai Appsec lab</span>
-            <span className="font-black text-2xl text-[#10b981] ml-0.5">*</span>
-          </Link>
+        {/* Brand Header */}
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-black text-gray-900 tracking-tight">
+            Ai Appsec lab
+          </span>
+          <span className="text-[#7c3aed] text-xl font-black">★</span>
         </div>
 
-        {/* Center Auth Card */}
+        {/* Form Container */}
         <div className="max-w-md w-full mx-auto my-auto py-8">
-          <h1 className="text-4xl sm:text-[44px] font-black text-gray-900 tracking-tight leading-tight mb-2">
-            Welcome back
-          </h1>
-          <p className="text-gray-500 font-medium text-sm mb-8">
-            Log in to your Ai Appsec lab
-          </p>
+          <div className="space-y-2 mb-8">
+            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight">
+              Welcome back
+            </h1>
+            <p className="text-base text-gray-500 font-medium">
+              Log in to your Ai Appsec lab account
+            </p>
+          </div>
 
           {error && (
-            <div className="mb-6 text-red-600 bg-red-50 text-sm p-3.5 rounded-2xl border border-red-100 font-medium text-center">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6 text-sm font-semibold animate-fadeIn">
               {error}
             </div>
           )}
@@ -79,34 +76,34 @@ const Login = () => {
             <div>
               <input
                 type="text"
-                required
+                placeholder="Email or username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email or username"
-                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder-gray-400 bg-white transition-all shadow-2xs"
+                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-gray-50/50 hover:bg-gray-50"
+                required
               />
             </div>
 
             <div>
               <input
                 type="password"
-                required
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder-gray-400 bg-white transition-all shadow-2xs"
+                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-gray-50/50 hover:bg-gray-50"
+                required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-4 px-6 bg-[#e5e5e5] hover:bg-gray-900 hover:text-white text-gray-800 font-bold text-sm rounded-full transition-all cursor-pointer mt-2"
+              className="w-full py-4 bg-[#7c3aed] text-white rounded-full font-bold text-base hover:bg-[#6d28d9] active:scale-[0.99] transition-all shadow-md hover:shadow-lg cursor-pointer mt-2"
             >
-              Continue
+              Log in
             </button>
           </form>
 
-          {/* Divider OR */}
+          {/* Divider */}
           <div className="relative my-7 text-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-100"></div>
@@ -121,7 +118,7 @@ const Login = () => {
             <button
               type="button"
               disabled={googleLoading}
-              onClick={() => setIsGoogleModalOpen(true)}
+              onClick={() => triggerGoogleLogin()}
               className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
             >
               {googleLoading ? (
@@ -144,27 +141,10 @@ const Login = () => {
                 </>
               )}
             </button>
-
-            <button
-              type="button"
-              onClick={() => setIsGoogleModalOpen(true)}
-              className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
-            >
-              <svg className="w-5 h-5 mr-3 text-black" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.32c.67-.82 1.13-1.96.99-3.12-1 .04-2.19.67-2.88 1.47-.62.72-1.16 1.88-1.01 3.01 1.12.09 2.24-.54 2.9-1.36z"/>
-              </svg>
-              Continue with Apple
-            </button>
           </div>
 
-          {/* Recovery & Sign Up Links */}
+          {/* Sign Up Links */}
           <div className="mt-8 text-center space-y-3">
-            <p className="text-sm font-semibold text-[#7c3aed]">
-              <a href="#" onClick={(e) => { e.preventDefault(); alert('Use Google Sign-in to authenticate directly.'); }} className="hover:underline">Forgot password?</a>
-              <span className="text-gray-300 mx-2">•</span>
-              <a href="#" onClick={(e) => { e.preventDefault(); alert('Your username is your account email.'); }} className="hover:underline">Forgot username?</a>
-            </p>
-
             <p className="text-sm font-medium text-gray-500">
               Don't have an account?{' '}
               <Link to="/register" className="text-[#7c3aed] font-bold hover:underline">
@@ -174,116 +154,54 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Footer Link */}
-        <div className="pt-4 text-xs text-gray-400 font-medium">
-          <a href="#" onClick={(e) => e.preventDefault()} className="hover:underline">Cookie preferences</a>
+        {/* Footer */}
+        <div className="text-xs text-gray-400 text-center font-medium">
+          © {new Date().getFullYear()} Ai Appsec lab. All rights reserved.
         </div>
       </div>
 
-      {/* Right Column: Exact Linktree Layout with Samay Raina, YouTube channel link, Netflix icon & INR ₹ price */}
-      <div className="hidden md:flex w-1/2 min-h-screen relative overflow-hidden bg-[#1d4ed8] items-center justify-center p-8 lg:p-12 select-none">
-        {/* Royal Blue Base */}
-        <div className="absolute inset-0 bg-[#1d4ed8] z-0"></div>
+      {/* Right Column: Hero Art */}
+      <div className="w-full md:w-[52%] bg-[#1e2338] relative overflow-hidden flex items-center justify-center p-8 lg:p-16 min-h-[450px] md:min-h-screen">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1e2338] via-[#0f172a] to-[#1e1b4b] opacity-95"></div>
 
-        {/* Lime Green Block */}
-        <div className="absolute right-6 top-10 bottom-10 w-[68%] bg-[#c6f135] z-0 rounded-[48px] shadow-2xl"></div>
+        <div className="relative z-10 w-full max-w-lg flex flex-col items-center">
+          <div className="w-full max-w-sm bg-[#1e293b]/90 border border-slate-700/50 rounded-3xl p-6 shadow-2xl backdrop-blur-xl relative transform transition-transform hover:scale-[1.01] duration-300">
+            <div className="flex flex-col items-center text-center">
+              <div className="relative w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-purple-500/30 p-1 bg-slate-900 shadow-xl">
+                <img 
+                  src="https://lh3.googleusercontent.com/a/default-user=s96-c" 
+                  alt="Samay Raina" 
+                  className="w-full h-full object-cover rounded-full"
+                  onError={(e) => {
+                    e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+                  }}
+                />
+              </div>
 
-        {/* Main Composited Collage Container */}
-        <div className="relative z-10 w-full max-w-lg h-[580px] flex items-center justify-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full mb-3">
+                <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                <span className="text-xs font-semibold text-purple-300">@SamayRainaOfficial</span>
+              </div>
 
-          {/* Top-Left Floating Video Player Card linking directly to Samay Raina's Official YouTube Channel */}
-          <a
-            href="https://www.youtube.com/@SamayRainaOfficial"
-            target="_blank"
-            rel="noreferrer"
-            className="absolute top-2 left-0 z-20 bg-black/80 backdrop-blur-md rounded-2xl p-3 shadow-2xl border border-white/20 flex items-center gap-3 transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all group cursor-pointer"
-          >
-            <div className="w-24 h-16 rounded-xl overflow-hidden relative bg-gray-900 border border-white/10">
-              <img src="/samay_raina_stage.png" alt="Samay Raina YouTube" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold shadow-md group-hover:scale-110 transition-transform">
-                  ▶
+              <h2 className="text-2xl font-bold text-white mb-1">Samay Raina</h2>
+              <p className="text-xs font-medium text-slate-400 mb-4 max-w-[240px]">
+                Comedian • Chess Enthusiast • Creator of India's Got Latent
+              </p>
+
+              <div className="w-full bg-slate-900/90 rounded-2xl p-4 border border-slate-700/40 text-left mb-4 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-purple-400">LATENT SHOW PASS</p>
+                  <p className="text-lg font-black text-white">₹499</p>
                 </div>
+                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-xs shadow-md">
+                  Get Pass
+                </button>
               </div>
             </div>
-            <div className="pr-3">
-              <p className="text-white text-xs font-black group-hover:text-red-400 transition-colors">India's Got Latent</p>
-              <p className="text-[10px] text-gray-300 font-semibold mt-0.5">@SamayRainaOfficial</p>
-              <div className="w-24 h-1.5 bg-white/30 rounded-full mt-1.5 overflow-hidden">
-                <div className="w-16 h-full bg-red-500 rounded-full"></div>
-              </div>
-            </div>
-          </a>
-
-          {/* Top-Right Floating YouTube & Netflix Icons (Large Format) */}
-          <div className="absolute top-2 right-0 z-20 flex flex-col gap-4">
-            {/* YouTube Icon (Larger Format) */}
-            <a
-              href="https://www.youtube.com/@SamayRainaOfficial"
-              target="_blank"
-              rel="noreferrer"
-              title="Samay Raina YouTube Channel"
-              className="w-16 h-16 rounded-full bg-[#ff4500] hover:bg-red-600 hover:scale-110 transition-all flex items-center justify-center shadow-2xl text-white border-2 border-white cursor-pointer"
-            >
-              <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-            </a>
-
-            {/* Netflix Icon (Larger Format) */}
-            <a
-              href="https://www.netflix.com"
-              target="_blank"
-              rel="noreferrer"
-              title="Watch Special on Netflix"
-              className="w-16 h-16 rounded-full bg-black hover:bg-gray-900 hover:scale-110 transition-all flex items-center justify-center shadow-2xl text-[#E50914] border-2 border-white cursor-pointer"
-            >
-              <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                <path d="M5.398 0v24h4.152v-10.74l4.984 10.74h4.068V0h-4.152v10.74L9.466 0z"/>
-              </svg>
-            </a>
           </div>
-
-          {/* Center Samay Raina Image */}
-          <div className="relative z-10 w-[290px] h-[440px] rounded-[36px] overflow-hidden shadow-2xl border-4 border-white transform hover:scale-[1.02] transition-transform">
-            <img
-              src="/samay_raina_stage.png"
-              alt="Samay Raina"
-              className="w-full h-full object-cover object-top"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex flex-col justify-end p-5">
-              <p className="text-lime-300 font-extrabold text-xs uppercase tracking-widest">SAMAY RAINA</p>
-              <p className="text-white font-black text-xl tracking-tight leading-tight">India's Got Latent</p>
-            </div>
-          </div>
-
-          {/* Left Side Floating Sneaker Card */}
-          <div className="absolute bottom-28 -left-6 z-20 w-36 h-28 transform -rotate-12 hover:rotate-0 transition-transform">
-            <div className="w-full h-full bg-white/95 backdrop-blur-md rounded-2xl p-2 shadow-2xl border border-gray-100 flex flex-col items-center justify-center">
-              <span className="text-3xl">👟</span>
-              <span className="text-[10px] font-black text-gray-700 mt-1">ASICS Gel-Kahana</span>
-            </div>
-          </div>
-
-          {/* Bottom-Right Floating Product Card with Ticket Price in Indian Rupees (₹) */}
-          <div className="absolute bottom-2 right-0 z-20 w-44 bg-[#fffef5] rounded-3xl p-3.5 shadow-2xl border border-amber-100/50 transform rotate-2 hover:rotate-0 transition-transform">
-            <div className="w-full h-28 rounded-2xl bg-amber-50/50 flex items-center justify-center p-2 border border-amber-100/30 overflow-hidden">
-              <img src="/samay_raina_stage.png" alt="Latent Ticket" className="h-full object-cover rounded-xl" />
-            </div>
-            <div className="mt-3 px-1">
-              <p className="text-[11px] font-black text-gray-900 uppercase tracking-wider">LATENT SHOW PASS</p>
-              <p className="text-xl font-black text-gray-900 mt-0.5">₹499</p>
-            </div>
-          </div>
-
         </div>
       </div>
 
-      <GoogleAuthModal 
-        isOpen={isGoogleModalOpen}
-        onClose={() => setIsGoogleModalOpen(false)}
-        onAuthenticate={performGoogleLogin}
-      />
     </div>
   );
 };
