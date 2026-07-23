@@ -233,6 +233,52 @@ const Navbar = () => {
         </div>
       )}
 
+      {/* Floating Corner QR Badge & Widget (Pops up at bottom-right corner of website) */}
+      <div className="fixed bottom-6 right-6 z-[80] flex flex-col items-end">
+        {/* Floating Expanded Corner QR Card */}
+        {isShareModalOpen && (
+          <div className="mb-3 bg-white p-4 rounded-3xl shadow-2xl border border-gray-200 text-gray-900 w-64 flex flex-col items-center animate-slideUp">
+            <div className="flex justify-between items-center w-full mb-2">
+              <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1">
+                <QrCode size={12} /> Scan Profile QR
+              </span>
+              <button 
+                onClick={() => setIsShareModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-xs font-bold px-1.5 py-0.5 rounded-full hover:bg-gray-100"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-2 bg-white rounded-xl border border-gray-100 shadow-xs mb-3">
+              <QRCodeSVG 
+                value={shareUrl}
+                size={130}
+                level="H"
+              />
+            </div>
+
+            <button
+              onClick={handleCopyLink}
+              className="w-full py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+              <span>{copied ? 'Link Copied!' : 'Copy Profile Link'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Bottom Corner Floating Button */}
+        <button
+          onClick={() => setIsShareModalOpen(!isShareModalOpen)}
+          className="bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-full shadow-2xl border-2 border-white flex items-center gap-2 font-bold text-xs transition transform hover:scale-105 active:scale-95 cursor-pointer"
+          title="Toggle Floating Corner QR Code"
+        >
+          <QrCode size={20} />
+          <span className="hidden md:inline font-extrabold">Profile QR</span>
+        </button>
+      </div>
+
     </header>
   );
 };
