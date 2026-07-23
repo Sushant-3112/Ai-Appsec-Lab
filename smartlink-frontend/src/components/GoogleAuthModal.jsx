@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [loading, setLoading] = useState(false);
@@ -8,8 +9,8 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [oauthError, setOauthError] = useState('');
 
-  // Native Google OAuth trigger fallback
-  const triggerGoogleLogin = useGoogleLogin({
+  // Native Google OAuth trigger hook
+  const loginWithGoogleOAuth = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       try {
@@ -22,7 +23,7 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
     },
     onError: (errorResponse) => {
       console.error("Google OAuth Error:", errorResponse);
-      setOauthError("Google OAuth error. Please ensure origin is authorized.");
+      setOauthError("Google OAuth error. Please ensure origin is authorized in Google Cloud Console.");
     }
   });
 
@@ -72,7 +73,7 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fadeIn font-sans">
       
-      {/* Real-World Google Sign-In Window Card */}
+      {/* Official Google Sign-In Window Card */}
       <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-gray-200/80 relative text-[#1f1f1f]">
         
         {/* Top Header Bar */}
@@ -118,17 +119,44 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
               
-              {/* Left Column: Heading */}
+              {/* Left Column: Title & Official Button */}
               <div className="md:col-span-5 pr-0 md:pr-4">
                 <h2 className="text-3xl sm:text-4xl font-normal text-gray-900 tracking-tight leading-tight mb-3">
                   Choose an account
                 </h2>
-                <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                <p className="text-sm text-gray-600 font-normal leading-relaxed mb-6">
                   to continue to <span className="text-[#1a73e8] font-medium hover:underline cursor-pointer">aiappseclab.auth.google.com</span>
                 </p>
+
+                {/* Prominent Official Google OAuth Login Button */}
+                <div className="pt-2">
+                  <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                      setLoading(true);
+                      try {
+                        const decoded = jwtDecode(credentialResponse.credential);
+                        await onAuthenticate(credentialResponse.credential, {
+                          email: decoded.email,
+                          name: decoded.name,
+                          picture: decoded.picture
+                        });
+                      } catch (err) {
+                        setOauthError(err.response?.data?.message || "Google Authentication failed");
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    onError={() => {
+                      setOauthError("Google OAuth Sign-In failed or popup closed.");
+                    }}
+                    theme="filled_blue"
+                    shape="pill"
+                    text="signin_with"
+                  />
+                </div>
               </div>
 
-              {/* Right Column: Clean Accounts List */}
+              {/* Right Column: Account List */}
               <div className="md:col-span-7 space-y-1">
                 
                 {showCustomInput ? (
@@ -164,6 +192,24 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   </form>
                 ) : (
                   <>
+                    {/* Launch Official Google Popup Button */}
+                    <button
+                      onClick={() => loginWithGoogleOAuth()}
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200 transition-all text-left text-blue-700 font-medium text-sm cursor-pointer group mb-2"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-[#1a73e8] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-blue-700 leading-tight">Google Sign-In Popup</p>
+                        <p className="text-[11px] text-blue-600">Click to open Google Account popup</p>
+                      </div>
+                    </button>
+
+                    <div className="border-b border-gray-200/80 my-2"></div>
+
                     {/* Account 1: Tanu Sharma */}
                     <button
                       onClick={() => handleAccountSelect({
