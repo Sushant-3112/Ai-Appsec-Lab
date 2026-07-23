@@ -22,6 +22,11 @@ const PublicProfile = () => {
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
 
+  const [activeTemplateId, setActiveTemplateId] = useState(null);
+  const [showTemplateDrawer, setShowTemplateDrawer] = useState(false);
+  const [savingTheme, setSavingTheme] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -35,6 +40,30 @@ const PublicProfile = () => {
     };
     fetchProfile();
   }, [username]);
+
+  const handleSaveTheme = async (templateId) => {
+    setSavingTheme(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        let currentConfig = {};
+        try { currentConfig = JSON.parse(profile.theme_config); } catch(e) {}
+        currentConfig.theme = templateId.toString();
+
+        await axios.post('/api/templates/select', {
+          theme_config: JSON.stringify(currentConfig)
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setSaveSuccessMsg('Theme saved to your profile!');
+        setTimeout(() => setSaveSuccessMsg(''), 3000);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingTheme(false);
+    }
+  };
 
   const handleLinkClick = async (link) => {
     // 1. Check for password protection
@@ -170,7 +199,8 @@ const PublicProfile = () => {
     parsedTheme = profile.theme_config || 'light';
   }
 
-  const selectedTemplate = templatesData.find(t => t.id.toString() === parsedTheme.toString()) || templatesData[0];
+  const effectiveThemeId = activeTemplateId || parsedTheme;
+  const selectedTemplate = templatesData.find(t => t.id.toString() === effectiveThemeId.toString()) || templatesData[0];
   
   const textColor = selectedTemplate.textClass;
   const bioColor = selectedTemplate.textClass;
@@ -206,12 +236,109 @@ const PublicProfile = () => {
   });
 
   return (
-    <div className="min-h-screen pt-32 pb-16 px-4 relative flex flex-col transition-colors duration-500 bg-black">
+    <div 
+      className="min-h-screen pt-32 pb-16 px-4 relative flex flex-col transition-all duration-700 bg-black overflow-x-hidden"
+      style={selectedTemplate.bgStyle ? { background: selectedTemplate.bgStyle } : {}}
+    >
       {selectedTemplate.bgImage && (
         <img src={selectedTemplate.bgImage} alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-80" />
       )}
       <div className={`absolute inset-0 ${selectedTemplate.bgOverlay}`}></div>
       
+      {/* User-Side Template Switcher Pill (Bottom Left Floating) */}
+      <div className="fixed bottom-6 left-6 z-[99] flex flex-col items-start gap-2">
+        {saveSuccessMsg && (
+          <div className="bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-xl animate-bounce">
+            {saveSuccessMsg}
+          </div>
+        )}
+        <button 
+          onClick={() => setShowTemplateDrawer(!showTemplateDrawer)}
+          className="bg-white/90 hover:bg-white text-gray-900 px-4 py-2.5 rounded-full font-extrabold text-xs shadow-2xl backdrop-blur-md border border-white/40 transition flex items-center gap-2 cursor-pointer group"
+        >
+          <span className="text-base group-hover:rotate-45 transition-transform">🎨</span>
+          <span>Switch Template ({templatesData.length})</span>
+        </button>
+      </div>
+
+      {/* Slide-over User-Side Template Selector Drawer */}
+      {showTemplateDrawer && (
+        <div className="fixed inset-x-0 bottom-0 z-[100] bg-gray-950/95 backdrop-blur-xl border-t border-white/10 p-6 shadow-2xl animate-slideUp font-sans">
+          <div className="max-w-6xl mx-auto">
+            
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-white font-extrabold text-lg flex items-center gap-2">
+                  <span>🎨 Select User-Side Template</span>
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                    {templatesData.length} Live Themes
+                  </span>
+                </h3>
+                <p className="text-xs text-gray-400">Click any template to preview its background, buttons & typography in real-time</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => handleSaveTheme(selectedTemplate.id)}
+                  disabled={savingTheme}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-full font-extrabold text-xs transition cursor-pointer shadow-lg disabled:opacity-50"
+                >
+                  {savingTheme ? 'Saving...' : 'Save Theme to Profile'}
+                </button>
+                <button 
+                  onClick={() => setShowTemplateDrawer(false)}
+                  className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Horizontal Scrollable Template Cards */}
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-700">
+              {templatesData.map((tpl) => {
+                const isActive = tpl.id.toString() === selectedTemplate.id.toString();
+                return (
+                  <button
+                    key={tpl.id}
+                    onClick={() => setActiveTemplateId(tpl.id)}
+                    className={`shrink-0 w-44 p-3 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
+                      isActive 
+                        ? 'border-emerald-400 bg-white/15 ring-2 ring-emerald-400/40 shadow-xl' 
+                        : 'border-white/10 bg-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    {/* Template Thumbnail Preview */}
+                    <div 
+                      className="w-full h-24 rounded-xl overflow-hidden mb-2 relative flex items-center justify-center border border-white/10"
+                      style={tpl.bgStyle ? { background: tpl.bgStyle } : { backgroundColor: '#1e293b' }}
+                    >
+                      {tpl.bgImage && (
+                        <img src={tpl.bgImage} alt={tpl.name} className="w-full h-full object-cover opacity-80" />
+                      )}
+                      <div className="absolute inset-0 bg-black/20"></div>
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${tpl.btnClass} shadow-md`}>
+                        Sample Button
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-bold text-white truncate">{tpl.name}</p>
+                    <p className="text-[10px] text-gray-400 truncate">{tpl.category || 'Theme Preset'}</p>
+
+                    {isActive && (
+                      <span className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-black font-black text-[10px] shadow-md">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Top right icon */}
       <div className="absolute top-6 right-6 z-30">
         <button 
