@@ -12,7 +12,7 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [apiKey, setApiKey] = useState(
     localStorage.getItem('google_oauth_api_key') || 
     import.meta.env.VITE_GOOGLE_CLIENT_ID || 
-    '154174698489-thdlk8r38qj6qfi96r4mdn2dvbif3o3c.apps.googleusercontent.com'
+    '747494521695-sbcr3n4067ts43938g3jhvhhe9f9uqh1.apps.googleusercontent.com'
   );
   const [keySavedNotice, setKeySavedNotice] = useState(false);
 
