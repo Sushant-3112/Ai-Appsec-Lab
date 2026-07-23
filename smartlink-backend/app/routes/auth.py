@@ -138,11 +138,7 @@ def google_login():
         # Check if user exists in database
         user = User.query.filter_by(email=email).first()
         
-        # Strict validation: if logging in and account is not in the system database
-        if require_existing and not user:
-            return jsonify({
-                'message': f"Google account '{email}' is not registered in the system. Please sign up first."
-            }), 404
+        # Google Auth is 100% allowed for all Google users (auto-create if new)
 
         if not user:
             base_username = email.split('@')[0]
