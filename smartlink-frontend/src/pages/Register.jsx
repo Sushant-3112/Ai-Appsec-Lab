@@ -1,37 +1,49 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import GoogleAuthModal from '../components/GoogleAuthModal';
+import { useGoogleLogin } from '@react-oauth/google';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    full_name: ''
+  });
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
-  const { register, googleLogin } = useContext(AuthContext);
+  const { register, login, googleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const performGoogleLogin = async (token, userPayload = {}) => {
-    setGoogleLoading(true);
-    setError('');
-    try {
-      await googleLogin(token, { require_existing: false, ...userPayload });
-      setIsGoogleModalOpen(false);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Google Registration failed');
-    } finally {
-      setGoogleLoading(false);
+  // Direct Google OAuth standard trigger (No modal, opens official Google login window directly)
+  const triggerGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleLoading(true);
+      setError('');
+      try {
+        await googleLogin(tokenResponse.access_token);
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Google Registration failed');
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: (errorResponse) => {
+      console.error("Google OAuth error:", errorResponse);
+      setError("Google Sign-In failed or popup was closed.");
     }
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register({ username, email, full_name: fullName, password });
+      await register(formData);
+      await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
@@ -42,103 +54,112 @@ const Register = () => {
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
       
       {/* Left Column: Register Form */}
-      <div className="w-full md:w-[48%] flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-20 z-10 bg-white">
+      <div className="w-full md:w-1/2 min-h-screen flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16">
         
-        {/* Brand Header */}
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-black text-gray-900 tracking-tight">
-            Ai Appsec lab
-          </span>
-          <span className="text-[#7c3aed] text-xl font-black">★</span>
+        {/* Top Logo */}
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center text-slate-900 group">
+            <span className="font-black text-2xl tracking-tight text-gray-900">Ai Appsec lab</span>
+            <span className="font-black text-2xl text-[#10b981] ml-0.5">*</span>
+          </Link>
         </div>
 
-        {/* Form Container */}
-        <div className="max-w-md w-full mx-auto my-auto py-8">
-          <div className="space-y-2 mb-8">
-            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight">
+        {/* Center Form Section */}
+        <div className="max-w-md w-full mx-auto py-8">
+          
+          <div className="mb-8">
+            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight leading-none mb-3">
               Create an account
             </h1>
-            <p className="text-base text-gray-500 font-medium">
-              Sign up for your Ai Appsec lab account
+            <p className="text-gray-500 text-base font-medium">
+              Sign up for your Ai Appsec lab profile
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6 text-sm font-semibold animate-fadeIn">
-              {error}
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium mb-6">
+              ⚠️ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center bg-gray-50/50 rounded-2xl border border-gray-200 focus-within:ring-2 focus-within:ring-[#7c3aed] focus-within:border-transparent transition-all">
-              <span className="pl-5 text-gray-400 text-sm font-semibold select-none">smartlink.hub/</span>
-              <input
-                type="text"
-                placeholder="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                className="w-full py-4 pr-5 pl-1 bg-transparent text-base text-gray-900 placeholder-gray-400 focus:outline-none"
-                required
-              />
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div>
+              <div className="flex rounded-2xl shadow-2xs">
+                <span className="inline-flex items-center px-4 rounded-l-2xl border border-r-0 border-gray-200 bg-gray-100 text-gray-400 text-xs font-semibold">
+                  smartlink.hub/
+                </span>
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  placeholder="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="flex-1 min-w-0 block w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-r-2xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:bg-white transition-all"
+                />
+              </div>
             </div>
 
             <div>
               <input
                 type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-gray-50/50 hover:bg-gray-50"
+                name="full_name"
                 required
+                placeholder="Full Name"
+                value={formData.full_name}
+                onChange={handleChange}
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:bg-white transition-all"
               />
             </div>
 
             <div>
               <input
                 type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-gray-50/50 hover:bg-gray-50"
+                name="email"
                 required
+                placeholder="Email address"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:bg-white transition-all"
               />
             </div>
 
             <div>
               <input
                 type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-gray-50/50 hover:bg-gray-50"
+                name="password"
                 required
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:bg-white transition-all"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#7c3aed] text-white rounded-full font-bold text-base hover:bg-[#6d28d9] active:scale-[0.99] transition-all shadow-md hover:shadow-lg cursor-pointer mt-2"
+              className="w-full py-4 px-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-base rounded-full shadow-lg shadow-purple-500/25 transition-all cursor-pointer transform active:scale-98 mt-2"
             >
               Create account
             </button>
           </form>
 
           {/* Divider */}
-          <div className="relative my-7 text-center">
+          <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
-            <span className="relative bg-white px-4 text-xs font-semibold text-gray-400 uppercase tracking-widest">
-              OR
-            </span>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-4 text-gray-400 font-bold tracking-widest">OR</span>
+            </div>
           </div>
 
-          {/* Social Logins */}
-          <div className="space-y-3.5">
+          {/* Social Auth Buttons */}
+          <div className="space-y-3">
             <button
               type="button"
               disabled={googleLoading}
-              onClick={() => setIsGoogleModalOpen(true)}
+              onClick={() => triggerGoogleLogin()}
               className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
             >
               {googleLoading ? (
@@ -147,7 +168,7 @@ const Register = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Authenticating with Google...
+                  Connecting to Google...
                 </span>
               ) : (
                 <>
@@ -161,10 +182,21 @@ const Register = () => {
                 </>
               )}
             </button>
+
+            <button
+              type="button"
+              onClick={() => alert('Apple Authentication is coming soon!')}
+              className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
+            >
+              <svg className="w-5 h-5 mr-3 text-black" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.32c.67-.82 1.13-1.96.99-3.12-1 .04-2.19.67-2.88 1.47-.62.72-1.16 1.88-1.01 3.01 1.12.09 2.24-.54 2.9-1.36z"/>
+              </svg>
+              Continue with Apple
+            </button>
           </div>
 
-          {/* Sign In Link */}
-          <div className="mt-8 text-center space-y-3">
+          {/* Login Link */}
+          <div className="mt-8 text-center">
             <p className="text-sm font-medium text-gray-500">
               Already have an account?{' '}
               <Link to="/login" className="text-[#7c3aed] font-bold hover:underline">
@@ -172,62 +204,80 @@ const Register = () => {
               </Link>
             </p>
           </div>
+
         </div>
 
-        {/* Footer */}
-        <div className="text-xs text-gray-400 text-center font-medium">
-          © {new Date().getFullYear()} Ai Appsec lab. All rights reserved.
+        {/* Footer info */}
+        <div className="text-center text-xs text-gray-400 font-medium">
+          © 2026 Ai Appsec lab. All rights reserved.
         </div>
+
       </div>
 
-      {/* Right Column: Hero Art */}
-      <div className="w-full md:w-[52%] bg-[#1e2338] relative overflow-hidden flex items-center justify-center p-8 lg:p-16 min-h-[450px] md:min-h-screen">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1e2338] via-[#0f172a] to-[#1e1b4b] opacity-95"></div>
+      {/* Right Column: Hero Graphic Section (Samay Raina Feature) */}
+      <div className="hidden md:flex w-1/2 bg-[#090b10] relative flex-col justify-between p-12 lg:p-16 overflow-hidden">
+        
+        {/* Background Decorative Glow */}
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 w-full max-w-lg flex flex-col items-center">
-          <div className="w-full max-w-sm bg-[#1e293b]/90 border border-slate-700/50 rounded-3xl p-6 shadow-2xl backdrop-blur-xl relative transform transition-transform hover:scale-[1.01] duration-300">
-            <div className="flex flex-col items-center text-center">
-              <div className="relative w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-purple-500/30 p-1 bg-slate-900 shadow-xl">
+        {/* Top Badges */}
+        <div className="flex justify-between items-center relative z-10">
+          <span className="px-3.5 py-1 bg-white/10 backdrop-blur-md text-emerald-400 font-semibold text-xs rounded-full border border-emerald-500/30">
+            ★ Official Creator Space
+          </span>
+          <div className="flex gap-2">
+            <span className="w-8 h-8 rounded-full bg-red-600/80 flex items-center justify-center text-white text-xs font-bold shadow-md">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </span>
+            <span className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-red-600 font-black text-xs border border-red-500/30">
+              N
+            </span>
+          </div>
+        </div>
+
+        {/* Center Hero Card: Samay Raina */}
+        <div className="my-auto relative z-10 flex justify-center py-6">
+          <div className="relative w-full max-w-sm">
+            <div className="bg-[#121620]/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl space-y-5 transform transition-transform hover:scale-[1.02]">
+              
+              <div className="relative h-64 rounded-2xl overflow-hidden bg-slate-800">
                 <img 
-                  src="https://lh3.googleusercontent.com/a/default-user=s96-c" 
-                  alt="Samay Raina" 
-                  className="w-full h-full object-cover rounded-full"
-                  onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
-                  }}
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" 
+                  alt="Samay Raina"
+                  className="w-full h-full object-cover object-top"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#121620] via-transparent to-transparent"></div>
+                <div className="absolute top-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-xs font-bold text-white border border-white/20">
+                  @SamayRainaOfficial
+                </div>
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full mb-3">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                <span className="text-xs font-semibold text-purple-300">@SamayRainaOfficial</span>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black text-white tracking-tight">Samay Raina</h3>
+                <p className="text-xs font-medium text-emerald-400">Chess Enthusiast • Creator of India's Got Latent</p>
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-1">Samay Raina</h2>
-              <p className="text-xs font-medium text-slate-400 mb-4 max-w-[240px]">
-                Comedian • Chess Enthusiast • Creator of India's Got Latent
-              </p>
-
-              <div className="w-full bg-slate-900/90 rounded-2xl p-4 border border-slate-700/40 text-left mb-4 flex items-center justify-between">
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center">
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-purple-400">LATENT SHOW PASS</p>
+                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">LATENT SHOW PASS</p>
                   <p className="text-lg font-black text-white">₹499</p>
                 </div>
-                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-xs shadow-md">
+                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg cursor-pointer">
                   Get Pass
                 </button>
               </div>
+
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Google Auth Modal */}
-      <GoogleAuthModal
-        isOpen={isGoogleModalOpen}
-        onClose={() => setIsGoogleModalOpen(false)}
-        onAuthenticate={performGoogleLogin}
-      />
+        {/* Bottom Quote */}
+        <div className="relative z-10 text-gray-400 text-xs font-medium">
+          "Powering next-generation bio links, monetized passes & app security."
+        </div>
+
+      </div>
 
     </div>
   );
