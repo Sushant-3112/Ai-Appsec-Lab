@@ -1,193 +1,299 @@
-import React from 'react';
-import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook, Check, ArrowRight, Shield, Code, Sparkles, ExternalLink } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
-const AppCard = ({ icon, title, description, bgToken }) => (
-  <button className="flex items-center gap-4 p-4 rounded-[16px] hover:bg-gray-50 transition w-full text-left group">
+const AppCard = ({ icon, title, description, bgToken, category, onConnect, isConnected }) => (
+  <div className="flex items-center gap-4 p-4 rounded-[20px] bg-white border border-gray-100 hover:border-amber-200 hover:shadow-lg transition-all w-full text-left group relative overflow-hidden">
      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ${bgToken || 'bg-white border border-gray-200'}`}>
         {icon}
      </div>
-     <div className="flex-1 pr-2">
-       <h4 className="font-bold text-gray-900 text-[16px] mb-0.5 group-hover:text-amber-800 transition-colors tracking-tight">{title}</h4>
-       <p className="font-medium text-[13px] text-gray-500 leading-snug">{description}</p>
+     <div className="flex-1 min-w-0 pr-2">
+       <div className="flex items-center gap-2">
+         <h4 className="font-bold text-gray-900 text-[16px] group-hover:text-[#780016] transition-colors tracking-tight truncate">{title}</h4>
+         {category && <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full shrink-0">{category}</span>}
+       </div>
+       <p className="font-medium text-[13px] text-gray-500 leading-snug line-clamp-2 mt-0.5">{description}</p>
      </div>
-  </button>
+     
+     <button 
+       onClick={() => onConnect(title)}
+       className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+         isConnected 
+           ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
+           : 'bg-gray-100 hover:bg-gray-900 hover:text-white text-gray-800'
+       }`}
+     >
+       {isConnected ? (
+         <span className="flex items-center gap-1"><Check size={14} /> Added</span>
+       ) : (
+         'Connect'
+       )}
+     </button>
+  </div>
 );
 
-const AppSection = ({ title, seeAllText, apps }) => (
+const AppSection = ({ title, seeAllText, apps, connectedApps, handleConnect }) => (
   <div className="mb-16">
     <div className="flex items-center justify-between mb-8">
-      <h2 className="text-[28px] font-black tracking-[-0.03em] text-gray-900">{title}</h2>
-      {seeAllText && <button className="font-semibold text-[15px] text-[#2a5bd7] hover:underline underline-offset-4">{seeAllText}</button>}
+      <div>
+        <h2 className="text-[28px] font-black tracking-[-0.03em] text-gray-900">{title}</h2>
+      </div>
+      {seeAllText && <button className="font-bold text-[14px] text-[#2a5bd7] hover:underline underline-offset-4 cursor-pointer">{seeAllText}</button>}
     </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2">
-       {apps.map((app, i) => <AppCard key={i} {...app} />)}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+       {apps.map((app, i) => (
+         <AppCard 
+           key={i} 
+           {...app} 
+           isConnected={connectedApps.includes(app.title)}
+           onConnect={handleConnect}
+         />
+       ))}
     </div>
   </div>
 );
 
 const Marketplace = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [connectedApps, setConnectedApps] = useState(['YouTube', 'Shopify']);
+  const [activeTab, setActiveTab] = useState('All');
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleConnect = (appName) => {
+    if (connectedApps.includes(appName)) {
+      setConnectedApps(connectedApps.filter(name => name !== appName));
+      showToast(`Disconnected ${appName}`);
+    } else {
+      setConnectedApps([...connectedApps, appName]);
+      showToast(`Connected ${appName} to your Ai Appsec lab profile!`);
+    }
+  };
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  const shareApps = [
+    { icon: <Music className="text-[#f9a01b]" fill="currentColor" size={28}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Audiomack', description: 'Add an Audiomack player to your Ai Appsec lab' },
+    { icon: <Music className="text-white" fill="currentColor" size={28}/>, bgToken: 'bg-[#ff5500]', title: 'SoundCloud', description: 'Get your music heard on SoundCloud' },
+    { icon: <Music className="text-white" size={28}/>, bgToken: 'bg-black', title: 'TikTok', description: 'Share your TikToks on your Ai Appsec lab' },
+    { icon: <Twitter className="text-white" fill="currentColor" size={24} />, bgToken: 'bg-black', title: 'X', description: 'Showcase your posts and X feed' },
+    { icon: <Youtube className="text-[#ff0000]" fill="currentColor" size={28}/>, bgToken: 'bg-white border flex items-center justify-center', title: 'YouTube', description: 'Share YouTube videos on your Ai Appsec lab' },
+    { icon: <div className="text-white font-[900] text-3xl mb-1 tracking-tighter">C</div>, bgToken: 'bg-black', title: 'Cameo', description: 'Make impossible fan connections possible' },
+    { icon: <Radio className="text-black" size={28}/>, bgToken: 'bg-[#1ed760]', title: 'Spotify', description: 'Share your latest tracks, playlists or podcasts' },
+    { icon: <Facebook className="text-[#1877f2]" fill="currentColor" size={32}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Facebook', description: 'Add Facebook videos and page feed' },
+    { icon: <div className="text-white font-[900] text-[40px] italic pr-1 pb-1">P</div>, bgToken: 'bg-[#e60023]', title: 'Pinterest', description: 'Showcase Pins, boards and collections' }
+  ];
+
+  const moneyApps = [
+    { icon: <DollarSign className="text-white" size={28}/>, bgToken: 'bg-[#00b964]', title: 'GoFundMe', description: 'Promote the causes you care about most' },
+    { icon: <ShoppingBag className="text-white" fill="currentColor" size={24}/>, bgToken: 'bg-black', title: 'Amaze', description: 'Design and sell physical products directly' },
+    { icon: <Store className="text-white" size={28}/>, bgToken: 'bg-[#95bf47]', title: 'Shopify', description: 'Display your products to boost online sales' },
+    { icon: <div className="text-white font-black text-2xl">☕</div>, bgToken: 'bg-[#ffdd00]', title: 'Buy Me a Coffee', description: 'Accept tips and memberships from fans' },
+    { icon: <div className="text-white font-black text-2xl">P</div>, bgToken: 'bg-[#ff424d]', title: 'Patreon', description: 'Monetize exclusive content for supporters' },
+    { icon: <DollarSign className="text-white" size={28}/>, bgToken: 'bg-[#003087]', title: 'PayPal', description: 'Collect direct payments and donations' }
+  ];
+
+  const audienceApps = [
+    { icon: <div className="w-8 h-8 rounded bg-yellow-400"></div>, bgToken: 'bg-[#fffc00]', title: 'Snapchat', description: 'Promote your Snapchat Public Profile' },
+    { icon: <div className="text-white font-black text-3xl transform -translate-y-[2px]">r</div>, bgToken: 'bg-[#ff4500]', title: 'Reddit', description: 'Showcase your Reddit profile and posts' },
+    { icon: <FileText className="text-white" size={24}/>, bgToken: 'bg-[#9932cc]', title: 'Contact Details', description: 'Easily share downloadable vCard contact file' },
+    { icon: <MessagesSquare className="text-white" size={24} fill="currentColor"/>, bgToken: 'bg-black', title: 'Community SMS', description: 'Build an SMS subscriber list' },
+    { icon: <Share2 className="text-gray-400" size={28}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Gleam', description: 'Run giveaways and growth campaigns' },
+    { icon: <FileText className="text-white" size={24}/>, bgToken: 'bg-[#4b0082]', title: 'Form', description: 'Collect visitor contact info and inquiries' }
+  ];
+
+  const devSecurityApps = [
+    { icon: <Code className="text-white" size={28}/>, bgToken: 'bg-[#24292e]', title: 'GitHub', description: 'Showcase repositories, gists & open-source projects' },
+    { icon: <Shield className="text-white" size={28}/>, bgToken: 'bg-[#7c3aed]', title: 'AppSec Scanner', description: 'Display live vulnerability badges & audit status' },
+    { icon: <Sparkles className="text-white" size={28}/>, bgToken: 'bg-[#059669]', title: 'Postman Hub', description: 'Share interactive API collections & documentation' }
+  ];
+
+  // Filter apps by search
+  const filterApps = (apps) => apps.filter(app => 
+    app.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    app.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-20">
+    <div className="min-h-screen bg-[#fafafa] font-sans text-gray-900 pb-20">
        
-       {/* Sub Navbar (Fake) */}
-       <div className="h-[76px] bg-white border-b border-gray-100 sticky top-0 z-40 flex items-center px-6 lg:px-12 justify-between mt-20">
+       <Navbar />
+
+       {/* Toast Notification */}
+       {toastMessage && (
+         <div className="fixed bottom-8 right-8 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce">
+           <span>⚡</span> {toastMessage}
+         </div>
+       )}
+
+       {/* Sub Header Bar */}
+       <div className="bg-white border-b border-gray-200 sticky top-16 z-30 flex items-center px-6 lg:px-12 justify-between py-4 shadow-2xs">
           <div className="flex items-center gap-6">
-             <span className="font-black text-[22px] tracking-tight">Ai Appsec lab<span className="align-super text-[16px]">*</span> <span className="text-gray-300 font-light mx-2">|</span> Marketplace</span>
-             <div className="hidden md:flex gap-6 mt-1 text-[15px] font-semibold">
-                <button className="text-gray-500 hover:text-gray-900 transition">Browse</button>
-                <button className="text-gray-900">Marketplace</button>
+             <span className="font-black text-[20px] tracking-tight flex items-center gap-1.5">
+               <span>Ai Appsec lab</span>
+               <span className="text-[#10b981] font-black">*</span> 
+               <span className="text-gray-300 font-light mx-1">|</span> 
+               <span className="text-gray-600 font-semibold">Marketplace</span>
+             </span>
+             
+             {/* Category Filter Pills */}
+             <div className="hidden md:flex gap-2">
+               {['All', 'Share Content', 'Monetization', 'Audience', 'Security'].map(tab => (
+                 <button 
+                   key={tab}
+                   onClick={() => setActiveTab(tab)}
+                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                     activeTab === tab 
+                       ? 'bg-gray-900 text-white' 
+                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                   }`}
+                 >
+                   {tab}
+                 </button>
+               ))}
              </div>
           </div>
+          
           <div className="flex items-center gap-3">
-             <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold px-6 py-3 rounded-full text-[15px] transition">Admin</button>
-             <button className="bg-gray-900 hover:bg-black text-white font-bold px-6 py-3 rounded-full text-[15px] transition">Sign up free</button>
+             <span className="text-xs font-bold text-gray-500 hidden sm:inline">
+               Connected Apps: <span className="text-emerald-600 font-black">{connectedApps.length}</span>
+             </span>
           </div>
        </div>
 
        {/* Hero Section */}
-       <div className="bg-[#780016] w-full relative overflow-hidden flex items-center lg:items-start pt-24 pb-32 px-6 lg:px-16 min-h-[560px]">
-          <div className="w-full lg:w-[45%] z-20 relative lg:pt-10">
-             <h1 className="text-[#e9c0e9] font-black text-[4rem] sm:text-[5rem] lg:text-[6rem] leading-[0.9] tracking-[-0.04em] mb-6">
+       <div className="bg-[#780016] w-full relative overflow-hidden flex items-center lg:items-start pt-16 pb-24 px-6 lg:px-16 min-h-[460px]">
+          <div className="w-full lg:w-[48%] z-20 relative lg:pt-6">
+             <span className="px-3.5 py-1 bg-white/10 backdrop-blur-md text-amber-300 font-bold text-xs rounded-full border border-amber-400/30 uppercase tracking-wider mb-4 inline-block">
+               Linktree Integrations Marketplace
+             </span>
+             <h1 className="text-[#fce7f3] font-black text-[3.5rem] sm:text-[4.5rem] lg:text-[5.2rem] leading-[0.95] tracking-[-0.04em] mb-5">
                Connect<br />more of you
              </h1>
-             <p className="text-[#f7e6f7] text-[1.15rem] font-medium leading-[1.5] max-w-md mb-8">
-               Bring the best experiences across the internet to one place: your Ai Appsec lab
+             <p className="text-[#fbcfe8] text-[1.1rem] font-medium leading-[1.5] max-w-md mb-8">
+               Bring the best content, products, and security integrations across the internet into your official Ai Appsec lab.
              </p>
-             <div className="relative max-w-[420px]">
+
+             {/* Search Bar */}
+             <div className="relative max-w-[450px]">
                 <Search size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
-                  placeholder="Search Link Apps and integrations..." 
-                  className="w-full pl-12 pr-6 py-[18px] rounded-[12px] shadow-lg text-[15px] font-medium outline-none focus:ring-4 focus:ring-black/20"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search 25+ Link Apps & integrations..." 
+                  className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white shadow-xl text-[15px] font-medium outline-none focus:ring-4 focus:ring-amber-500/30 text-gray-900"
                 />
              </div>
           </div>
 
-          {/* Right Side 3D Graphic Elements */}
-          <div className="hidden lg:block absolute right-0 top-0 w-[55%] h-full">
-             {/* Abstract Rocks */}
-             <div className="absolute right-[30%] top-[10%] w-[180px] h-[300px] z-10 flex flex-col justify-center gap-1 opacity-90 drop-shadow-2xl">
-                 <div className="w-full h-[30px] bg-[#435343] rounded-[100%] transform -rotate-6"></div>
-                 <div className="w-[80%] h-[70px] bg-[#e77443] rounded-[40px] shadow-inner transform rotate-3 ml-4"></div>
-                 <div className="w-[90%] h-[35px] bg-[#435343] rounded-[100%] shadow-inner transform rotate-2 ml-1"></div>
-                 <div className="w-[85%] h-[60px] bg-[#e77443] rounded-[40px] shadow-inner transform -rotate-3 ml-5"></div>
-                 <div className="w-full h-[30px] bg-[#435343] rounded-[100%] shadow-inner transform rotate-6"></div>
+          {/* Right Side Showcase Banner */}
+          <div className="hidden lg:block absolute right-12 top-10 w-[46%] h-[380px] bg-gradient-to-br from-[#8b001a] to-[#4a000d] rounded-3xl border border-white/10 p-8 shadow-2xl overflow-hidden">
+             <div className="flex justify-between items-center mb-6">
+               <span className="text-xs font-bold text-amber-300 uppercase tracking-widest">⚡ Featured Apps</span>
+               <span className="text-xs font-semibold text-white/70">25+ Apps Available</span>
              </div>
              
-             {/* Phone Mockup Frame */}
-             <div className="absolute right-[10%] top-[25%] w-[260px] h-[550px] bg-gradient-to-b from-[#b3401c] to-[#45140b] rounded-[40px] border-8 border-transparent shadow-2xl z-20 overflow-hidden flex flex-col items-center pt-10 px-4 transform -rotate-6 transition-transform hover:rotate-0 duration-500">
-                <div className="w-[80px] h-[80px] rounded-full border-4 border-white/20 overflow-hidden mb-3">
-                   <img src="https://images.unsplash.com/photo-1542361002-23c316f73775?auto=format&fit=crop&q=80&w=150" alt="Avatar" className="w-full h-full object-cover" />
-                </div>
-                <h4 className="text-white font-black text-[15px] mb-0.5">Justin Peaches</h4>
-                <p className="text-white/70 font-bold text-[10px] mb-6">Funk & R&B Singer</p>
-                <div className="w-full bg-[#fdecd5] text-[#45140b] font-bold text-[12px] py-4 text-center rounded-2xl mb-3 shadow-sm hover:scale-105 transition">Listen to Hazy Gaze</div>
-                <div className="w-full bg-[#fdecd5] text-[#45140b] font-bold text-[12px] py-4 text-center rounded-2xl mb-3 shadow-sm hover:scale-105 transition">Merch drop</div>
-                <div className="w-full bg-[#fdecd5] text-[#45140b] font-bold text-[12px] py-4 text-center rounded-2xl mb-3 shadow-sm hover:scale-105 transition">Harvest Tour</div>
-             </div>
-             
-             {/* Floating Neon Card */}
-             <div className="absolute left-[8%] top-[45%] z-30 bg-[#d2e823] w-[180px] h-[200px] rounded-[24px] shadow-[0_20px_40px_rgba(0,0,0,0.4)] p-6 flex flex-col items-center justify-center transform rotate-[-8deg] hover:rotate-0 transition-transform duration-300">
-                <div className="w-12 h-12 rounded-full border-2 border-[#1a3622] flex items-center justify-center mb-4">
-                   <DollarSign className="text-[#1a3622]" size={24} />
-                </div>
-                <div className="text-[#1a3622] font-black text-[32px] leading-none mb-2 tracking-tight">$1,536</div>
-                <div className="text-[#1a3622] font-semibold text-[13px]">Total Revenue</div>
-             </div>
+             <div className="grid grid-cols-2 gap-4">
+               <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white font-bold shrink-0">
+                   ▶
+                 </div>
+                 <div>
+                   <p className="text-white text-xs font-bold">YouTube</p>
+                   <p className="text-white/60 text-[10px]">Video Embeds</p>
+                 </div>
+               </div>
 
-             {/* Merch Card Mockup */}
-             <div className="absolute right-[0%] bottom-[-5%] z-30 bg-white w-[250px] h-[280px] rounded-[32px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] p-5 transform rotate-3">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="w-4 h-4 rounded-full bg-gray-200"></div>
-                  <span className="font-bold text-[12px] text-gray-900">Merch Drop</span>
-                  <div className="w-4 h-4">^</div>
-                </div>
-                <div className="w-full h-[200px] flex gap-2">
-                   <div className="w-1/2 h-full bg-gray-100 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=200" alt="Merch" className="w-full h-full object-cover" /></div>
-                   <div className="w-1/2 h-full bg-gray-100 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1610425332766-0dbdfda7fcf5?auto=format&fit=crop&q=80&w=200" alt="Merch" className="w-full h-full object-cover" /></div>
-                </div>
-             </div>
+               <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-xl bg-[#95bf47] flex items-center justify-center text-white font-bold shrink-0">
+                   🛒
+                 </div>
+                 <div>
+                   <p className="text-white text-xs font-bold">Shopify</p>
+                   <p className="text-white/60 text-[10px]">Product Store</p>
+                 </div>
+               </div>
 
-             {/* Social Indicators */}
-             <div className="absolute bottom-[10%] left-[25%] z-30 flex gap-3">
-                 <div className="w-12 h-12 bg-[#ffe8d6] shadow-xl rounded-[16px] flex items-center justify-center text-[#780016]"><Music size={20} /></div>
-                 <div className="w-12 h-12 bg-[#ffe8d6] shadow-xl rounded-[16px] flex items-center justify-center text-[#780016]"><MessagesSquare size={20} /></div>
-                 <div className="w-12 h-12 bg-[#ffe8d6] shadow-xl rounded-[16px] flex items-center justify-center text-[#780016]"><Youtube size={20} /></div>
+               <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-xl bg-[#1ed760] flex items-center justify-center text-black font-bold shrink-0">
+                   🎵
+                 </div>
+                 <div>
+                   <p className="text-white text-xs font-bold">Spotify</p>
+                   <p className="text-white/60 text-[10px]">Audio Player</p>
+                 </div>
+               </div>
+
+               <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold shrink-0">
+                   🛡️
+                 </div>
+                 <div>
+                   <p className="text-white text-xs font-bold">AppSec Lab</p>
+                   <p className="text-white/60 text-[10px]">Security Badges</p>
+                 </div>
+               </div>
              </div>
           </div>
        </div>
 
        {/* Content Grid Container */}
-       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 py-16">
+       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 py-12">
           
-          <AppSection 
-            title="Share your content" 
-            seeAllText="See 25 Apps"
-            apps={[
-              { icon: <Music className="text-[#f9a01b]" fill="currentColor" size={28}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Audiomack', description: 'Add an Audiomack player to your Ai Appsec lab' },
-              { icon: <Music className="text-white" fill="currentColor" size={28}/>, bgToken: 'bg-[#ff5500]', title: 'SoundCloud', description: 'Get your music heard on SoundCloud' },
-              { icon: <Music className="text-white" size={28}/>, bgToken: 'bg-black', title: 'TikTok', description: 'Share your TikToks on your Ai Appsec lab' },
-              { icon: <Twitter className="text-white" fill="currentColor" size={24} />, bgToken: 'bg-black', title: 'X', description: 'Showcase your posts and X feed' },
-              { icon: <Youtube className="text-[#ff0000]" fill="currentColor" size={28}/>, bgToken: 'bg-white border flex items-center justify-center', title: 'YouTube', description: 'Share YouTube videos on your Ai Appsec lab' },
-              { icon: <div className="text-white font-[900] text-3xl mb-1 tracking-tighter">C</div>, bgToken: 'bg-black', title: 'Cameo', description: 'Make impossible fan connections possible' },
-            ]}
-          />
+          {(activeTab === 'All' || activeTab === 'Share Content') && (
+            <AppSection 
+              title="Share your content" 
+              seeAllText="See 25 Apps"
+              apps={filterApps(shareApps)}
+              connectedApps={connectedApps}
+              handleConnect={handleConnect}
+            />
+          )}
 
-          <AppSection 
-            title="Make and collect money" 
-            seeAllText="See 14 Apps"
-            apps={[
-              { icon: <DollarSign className="text-white" size={28}/>, bgToken: 'bg-[#00b964]', title: 'GoFundMe', description: 'Promote the causes you care about most' },
-              { icon: <ShoppingBag className="text-white" fill="currentColor" size={24}/>, bgToken: 'bg-black', title: 'Amaze', description: 'Design and sell physical products' },
-              { icon: <Store className="text-white" size={28}/>, bgToken: 'bg-[#95bf47]', title: 'Shopify', description: 'Display your products to boost sales' }
-            ]}
-          />
+          {(activeTab === 'All' || activeTab === 'Monetization') && (
+            <AppSection 
+              title="Make and collect money" 
+              seeAllText="See 14 Apps"
+              apps={filterApps(moneyApps)}
+              connectedApps={connectedApps}
+              handleConnect={handleConnect}
+            />
+          )}
 
-          {/* Banner */}
-          <div className="w-full bg-[#c2a9af] rounded-[32px] overflow-hidden flex min-h-[300px] mb-20 relative px-10 py-16">
+          {/* Developer Program Banner */}
+          <div className="w-full bg-gradient-to-r from-slate-900 to-indigo-950 rounded-[32px] overflow-hidden flex min-h-[260px] my-16 relative px-8 lg:px-12 py-12 text-white shadow-2xl border border-white/10">
              <div className="relative z-20 max-w-lg">
-                <h2 className="text-[42px] font-[900] leading-[1.05] tracking-tight text-gray-900 mb-4">Join our developer program</h2>
-                <p className="text-[17px] font-medium text-gray-800 mb-8 max-w-md">We're expanding access to our APIs and SDKs.</p>
-                <button className="bg-[#1f2937] hover:bg-black text-white px-8 py-4 rounded-full font-bold shadow-lg transition transform hover:-translate-y-1">
-                  Register Now
+                <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2 block">Developer Ecosystem</span>
+                <h2 className="text-[34px] lg:text-[42px] font-black leading-[1.05] tracking-tight text-white mb-3">Join our developer program</h2>
+                <p className="text-[15px] font-medium text-slate-300 mb-6">Build custom Linktree integrations, AppSec widgets, and monetization APIs for millions of creators.</p>
+                <button className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-8 py-3.5 rounded-full font-extrabold text-sm transition transform hover:-translate-y-0.5 cursor-pointer shadow-lg shadow-emerald-500/20">
+                  Register Developer Key
                 </button>
-             </div>
-             
-             {/* Abstract background graphics on the right */}
-             <div className="absolute right-0 top-0 w-1/2 h-full overflow-hidden hidden md:block z-10">
-                <div className="absolute right-[10%] top-[40%] bg-[#cc00ff] w-[280px] h-[340px] transform rotate-[-8deg] shadow-2xl backdrop-blur-md flex justify-center items-center">
-                   <div className="w-[180px] h-[220px] bg-[#d7b0b7] rounded-full mix-blend-multiply opacity-80"></div>
-                </div>
-                <div className="absolute right-[-10%] top-[-20%] bg-[#082a6d] w-[300px] h-[400px] transform rotate-[15deg] shadow-2xl flex items-center justify-center overflow-hidden">
-                   <div className="w-[80%] h-[80%] border-[20px] border-[#31569d] rounded-full"></div>
-                </div>
-                <div className="absolute right-[30%] top-[-20%] bg-[#1b4313] w-[180px] h-[400px] transform rotate-[-15deg] shadow-2xl"></div>
              </div>
           </div>
 
-          <AppSection 
-            title="Grow your following" 
-            seeAllText="See 20 Apps"
-            apps={[
-              { icon: <div className="w-8 h-8 rounded bg-yellow-400"></div>, bgToken: 'bg-[#fffc00]', title: 'Snapchat', description: 'Promote your Public Profile' },
-              { icon: <div className="text-white font-black text-3xl transform -translate-y-[2px]">r</div>, bgToken: 'bg-[#ff4500]', title: 'Reddit', description: 'Showcase your Reddit profile' },
-              { icon: <FileText className="text-white" size={24}/>, bgToken: 'bg-[#9932cc]', title: 'Contact Details', description: 'Easily share downloadable contact details' },
-              { icon: <MessagesSquare className="text-white" size={24} fill="currentColor"/>, bgToken: 'bg-black', title: 'Community SMS', description: 'Build an SMS subscriber list' },
-              { icon: <Share2 className="text-gray-400" size={28}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Gleam', description: 'Run campaigns to grow your audience' },
-              { icon: <FileText className="text-white" size={24}/>, bgToken: 'bg-[#4b0082]', title: 'Form', description: 'Collect visitor contact info and messages' },
-            ]}
-          />
+          {(activeTab === 'All' || activeTab === 'Audience') && (
+            <AppSection 
+              title="Grow your following" 
+              seeAllText="See 20 Apps"
+              apps={filterApps(audienceApps)}
+              connectedApps={connectedApps}
+              handleConnect={handleConnect}
+            />
+          )}
 
-          <AppSection 
-            title="All link apps and integrations" 
-            seeAllText="See All"
-            apps={[
-              { icon: <Radio className="text-black" size={28}/>, bgToken: 'bg-[#1ed760]', title: 'Spotify', description: 'Share your latest or favorite music' },
-              { icon: <Facebook className="text-[#1877f2]" fill="currentColor" size={32}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Facebook', description: 'Add Facebook videos to your Ai Appsec lab' },
-              { icon: <div className="text-white font-[900] text-[40px] italic pr-1 pb-1">P</div>, bgToken: 'bg-[#e60023]', title: 'Pinterest', description: 'Showcase Pins, boards and more' },
-              { icon: <Radio className="text-[#1a3622]" size={28}/>, bgToken: 'bg-[#d2e823]', title: 'Podcasts', description: 'Get more podcast listeners and subscribers' }
-            ]}
-          />
+          {(activeTab === 'All' || activeTab === 'Security') && (
+            <AppSection 
+              title="Developer & AppSec Integrations" 
+              seeAllText="See All"
+              apps={filterApps(devSecurityApps)}
+              connectedApps={connectedApps}
+              handleConnect={handleConnect}
+            />
+          )}
 
        </div>
     </div>
