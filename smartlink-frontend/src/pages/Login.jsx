@@ -205,31 +205,31 @@ const Login = () => {
         {/* Center Hero Card: Samay Raina */}
         <div className="my-auto relative z-10 flex justify-center py-6">
           <div className="relative w-full max-w-sm">
-            <div className="bg-[#121620]/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl space-y-5 transform transition-transform hover:scale-[1.02]">
+            <div className="bg-[#13161f]/95 backdrop-blur-xl rounded-3xl p-6 border border-[#1e2330] shadow-2xl space-y-5 transform transition-transform hover:scale-[1.02]">
               
-              <div className="relative h-64 rounded-2xl overflow-hidden bg-slate-800">
+              <div className="relative h-72 rounded-2xl overflow-hidden bg-slate-900">
                 <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" 
+                  src="/samay_raina_stage.png" 
                   alt="Samay Raina"
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-top filter contrast-105 brightness-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#121620] via-transparent to-transparent"></div>
-                <div className="absolute top-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-xs font-bold text-white border border-white/20">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#13161f] via-transparent to-transparent opacity-80"></div>
+                <div className="absolute top-3.5 right-3.5 px-3.5 py-1 bg-black/75 backdrop-blur-md rounded-full text-[11px] font-bold text-white border border-white/15 shadow-sm">
                   @SamayRainaOfficial
                 </div>
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-2xl font-black text-white tracking-tight">Samay Raina</h3>
-                <p className="text-xs font-medium text-emerald-400">Chess Enthusiast • Creator of India's Got Latent</p>
+                <h3 className="text-3xl font-extrabold text-white tracking-tight">Samay Raina</h3>
+                <p className="text-xs font-semibold text-[#10b981]">Chess Enthusiast • Creator of India's Got Latent</p>
               </div>
 
-              <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center">
                 <div>
                   <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">LATENT SHOW PASS</p>
-                  <p className="text-lg font-black text-white">₹499</p>
+                  <p className="text-xl font-extrabold text-white">₹499</p>
                 </div>
-                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg cursor-pointer">
+                <button className="px-6 py-2.5 bg-gradient-to-r from-[#7c3aed] to-[#6366f1] hover:from-[#6d28d9] hover:to-[#4f46e5] text-white font-bold text-xs rounded-full shadow-lg shadow-purple-500/25 transition-all cursor-pointer">
                   Get Pass
                 </button>
               </div>
