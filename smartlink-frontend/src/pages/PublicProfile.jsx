@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText } from 'lucide-react';
+import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText, QrCode, Download, Copy, Check } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import templatesData from '../data/templateData';
 
 const PublicProfile = () => {
@@ -26,6 +27,7 @@ const PublicProfile = () => {
   const [showTemplateDrawer, setShowTemplateDrawer] = useState(false);
   const [savingTheme, setSavingTheme] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+  const [qrCopied, setQrCopied] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -244,6 +246,33 @@ const PublicProfile = () => {
         <img src={selectedTemplate.bgImage} alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-80" />
       )}
       <div className={`absolute inset-0 ${selectedTemplate.bgOverlay}`}></div>
+      
+      {/* Top Left Empty Space: Embedded QR Code Card */}
+      <div className="absolute top-6 left-6 z-30 hidden sm:flex flex-col items-center">
+        <div className="bg-white/95 backdrop-blur-xl p-3 rounded-2xl border border-white/40 shadow-2xl transition-all duration-300 hover:scale-105 text-center">
+          <div className="p-1 bg-white rounded-xl">
+            <QRCodeSVG 
+              value={window.location.href}
+              size={90}
+              level="H"
+            />
+          </div>
+          <p className="mt-1.5 text-[9px] font-extrabold text-gray-900 tracking-wider uppercase">
+            Scan Profile QR
+          </p>
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              setQrCopied(true);
+              setTimeout(() => setQrCopied(false), 2000);
+            }}
+            className="mt-1 w-full bg-gray-900 hover:bg-black text-white text-[9px] font-bold py-1 rounded-md transition cursor-pointer flex items-center justify-center gap-1"
+          >
+            {qrCopied ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+            <span>{qrCopied ? 'Copied' : 'Copy Link'}</span>
+          </button>
+        </div>
+      </div>
       
       {/* User-Side Template Switcher Pill (Bottom Left Floating) */}
       <div className="fixed bottom-6 left-6 z-[99] flex flex-col items-start gap-2">
