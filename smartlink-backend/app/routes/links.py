@@ -244,3 +244,54 @@ def get_link_categories():
     ).distinct().all()
     
     return jsonify([cat[0] for cat in categories]), 200
+
+
+@api_bp.route('/subscribers', methods=['POST'])
+@jwt_required()
+def add_subscriber():
+    """Manually add a subscriber/lead"""
+    current_user_id = int(get_jwt_identity())
+    data = request.get_json() or {}
+    email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    first_link = Link.query.filter_by(user_id=current_user_id).first()
+    link_id = first_link.id if first_link else 1
+    
+    lead = Lead(
+        link_id=link_id,
+        user_id=current_user_id,
+        email=email,
+        name=data.get('name', 'Subscriber'),
+        phone=data.get('phone', ''),
+        source=data.get('source', 'Newsletter Block'),
+        message=data.get('message', '')
+    )
+    db.session.add(lead)
+    db.session.commit()
+    return jsonify({
+        'message': 'Subscriber added successfully',
+        'lead': {
+            'id': lead.id,
+            'email': lead.email,
+            'name': lead.name,
+            'phone': lead.phone,
+            'source': lead.source,
+            'created_at': lead.created_at.isoformat()
+        }
+    }), 201
+
+
+@api_bp.route('/subscribers/<int:lead_id>', methods=['DELETE'])
+@jwt_required()
+def delete_subscriber(lead_id):
+    """Delete a subscriber/lead"""
+    current_user_id = int(get_jwt_identity())
+    lead = Lead.query.filter_by(id=lead_id, user_id=current_user_id).first()
+    if not lead:
+        return jsonify({'error': 'Subscriber not found'}), 404
+    db.session.delete(lead)
+    db.session.commit()
+    return jsonify({'message': 'Subscriber deleted successfully'}), 200
+
