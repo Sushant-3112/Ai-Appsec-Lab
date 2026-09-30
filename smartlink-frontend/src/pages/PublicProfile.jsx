@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText, Download, Copy, Check, Ghost } from 'lucide-react';
+import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText, Download, Copy, Check, Ghost, QrCode } from 'lucide-react';
 import templatesData from '../data/templateData';
+import { QRCodeSVG } from 'qrcode.react';
 
 const PublicProfile = () => {
   const { username } = useParams();
@@ -10,6 +11,7 @@ const PublicProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showShare, setShowShare] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Advanced feature state
@@ -343,8 +345,18 @@ const PublicProfile = () => {
         </div>
       )}
 
-      {/* Top right icon */}
-      <div className="absolute top-6 right-6 z-30">
+      {/* Top right icon & Profile QR button */}
+      <div className="absolute top-6 right-6 z-30 flex items-center gap-2.5">
+        {/* Dedicated Profile QR Button */}
+        <button
+          onClick={() => setShowQrModal(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-extrabold text-xs shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer border border-blue-400/30"
+          title="Show Profile QR Code"
+        >
+          <QrCode size={15} />
+          <span>Profile QR</span>
+        </button>
+
         <button 
           onClick={() => setShowShare(!showShare)}
           className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm cursor-pointer border transition-all duration-300 ${IconClass}`}
@@ -655,6 +667,57 @@ const PublicProfile = () => {
                 </form>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Profile QR Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 relative text-gray-900">
+            <button 
+              onClick={() => setShowQrModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 rounded-full p-1.5 transition-colors cursor-pointer hover:bg-gray-100"
+            >
+              ✕
+            </button>
+
+            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <QrCode size={24} />
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 mb-1">@{profile?.username || username}'s Profile QR</h3>
+            <p className="text-xs text-gray-500 mb-6 font-medium">Scan with smartphone camera to view profile</p>
+
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 flex flex-col items-center justify-center mb-6 shadow-inner">
+              <QRCodeSVG 
+                value={`${window.location.origin}/${username}`}
+                size={180}
+                bgColor={"#ffffff"}
+                fgColor={"#1e1b4b"}
+                level={"Q"}
+                includeMargin={true}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/${username}`);
+                  setSaveSuccessMsg('Profile link copied!');
+                  setTimeout(() => setSaveSuccessMsg(''), 2500);
+                }}
+                className="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-extrabold transition cursor-pointer"
+              >
+                Copy Link
+              </button>
+              <button 
+                onClick={() => setShowQrModal(false)}
+                className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold transition cursor-pointer shadow-md"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
