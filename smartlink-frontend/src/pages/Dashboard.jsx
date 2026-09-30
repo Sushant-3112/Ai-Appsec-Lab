@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Plus, Trash2, ExternalLink, BarChart2, Save, User as UserIcon, Palette, Youtube, Instagram, Twitter, Music, Mail, MapPin, Globe, CheckCircle, Download, Bot, Activity, Calendar, ArrowUpRight, ArrowDownRight, MoreHorizontal, DollarSign, Star, StarOff, LayoutTemplate, Check, X, ShoppingBag, Store, Ghost } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, BarChart2, Save, User as UserIcon, Palette, Youtube, Instagram, Twitter, Music, Mail, MapPin, Globe, CheckCircle, Download, Bot, Activity, Calendar, ArrowUpRight, ArrowDownRight, MoreHorizontal, DollarSign, Star, StarOff, LayoutTemplate, Check, X, ShoppingBag, Store, Ghost, Video, Play, Droplets, Clock, Lock, Sparkles } from 'lucide-react';
 import { Navigate, useLocation } from 'react-router-dom';
 import templatesData from '../data/templateData';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
@@ -48,6 +48,40 @@ const Dashboard = () => {
     try { return JSON.parse(localStorage.getItem('smartlink_saved_template_ids') || '[]'); } catch { return []; }
   });
   const [templateFilter, setTemplateFilter] = useState('all'); // 'all' | 'saved'
+
+  // ── Video Analytics & Link Drip System ──
+  const [videoAnalytics, setVideoAnalytics] = useState([
+    { id: 1, title: "India's Got Latent - Episode 5", views: 24810, watchTime: "4m 18s", retention: "84%", dripStatus: "active", dripTime: "Live Now", clickThrough: "18.4%" },
+    { id: 2, title: "Samay Raina Live Standup Special", views: 18450, watchTime: "3m 45s", retention: "76%", dripStatus: "dripping", dripTime: "Drips in 3h 12m", clickThrough: "14.2%" },
+    { id: 3, title: "ASICS Gel-Kahana Unboxing & Review", views: 9320, watchTime: "2m 10s", retention: "68%", dripStatus: "scheduled", dripTime: "Oct 5, 2026", clickThrough: "11.8%" }
+  ]);
+
+  const [dripModalOpen, setDripModalOpen] = useState(false);
+  const [dripForm, setDripForm] = useState({
+    title: "India's Got Latent - Episode 6 (VIP Drip)",
+    url: "https://youtube.com/@SamayRainaOfficial",
+    dripType: 'time',
+    dripDate: '2026-10-05T10:00',
+    targetViews: 10000
+  });
+
+  const handleAddDripLink = (e) => {
+    e.preventDefault();
+    const newDrip = {
+      id: Date.now(),
+      title: dripForm.title,
+      views: 0,
+      watchTime: "0m 00s",
+      retention: "100%",
+      dripStatus: "scheduled",
+      dripTime: dripForm.dripType === 'time' ? `Scheduled ${new Date(dripForm.dripDate).toLocaleDateString()}` : `Unlocks at ${dripForm.targetViews.toLocaleString()} views`,
+      clickThrough: "0%"
+    };
+    setVideoAnalytics([newDrip, ...videoAnalytics]);
+    setDripModalOpen(false);
+    setUpdateMsg('✨ Link Drip scheduled successfully!');
+    setTimeout(() => setUpdateMsg(''), 3000);
+  };
 
   const isSaved = (id) => savedTemplateIds.includes(id);
 
@@ -1269,6 +1303,98 @@ const Dashboard = () => {
                     </div>
                   </div>
 
+                  {/* Video Analytics & Link Drip Feature Section */}
+                  <div className="mt-8 bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-[0_2px_15px_-3px_rgba(6,81,237,0.08)]">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                      <div>
+                        <div className="flex items-center gap-2 text-[#7c3aed] font-bold text-xs uppercase tracking-wider mb-1">
+                          <Droplets size={16} className="text-[#7c3aed] animate-pulse" />
+                          <span>Video Analytics & Link Drip Engine</span>
+                        </div>
+                        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Video Performance & Scheduled Link Drips</h3>
+                        <p className="text-gray-500 text-sm mt-0.5">Track video engagement, audience retention, and automated release drip links.</p>
+                      </div>
+
+                      <button
+                        onClick={() => setDripModalOpen(true)}
+                        className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-5 py-2.5 rounded-full text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      >
+                        <Droplets size={15} />
+                        <span>+ Schedule Link Drip</span>
+                      </button>
+                    </div>
+
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 p-5 rounded-2xl">
+                        <div className="flex items-center justify-between text-purple-600 mb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">Total Video Plays</span>
+                          <Video size={18} />
+                        </div>
+                        <div className="text-3xl font-black text-gray-900">52,580</div>
+                        <span className="text-xs text-purple-600 font-semibold">↑ 28.4% from last week</span>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 p-5 rounded-2xl">
+                        <div className="flex items-center justify-between text-blue-600 mb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">Avg. Watch Retention</span>
+                          <Clock size={18} />
+                        </div>
+                        <div className="text-3xl font-black text-gray-900">78.2%</div>
+                        <span className="text-xs text-blue-600 font-semibold">4m 12s avg. watch time</span>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 p-5 rounded-2xl">
+                        <div className="flex items-center justify-between text-emerald-600 mb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">Drip Conversion CTR</span>
+                          <Sparkles size={18} />
+                        </div>
+                        <div className="text-3xl font-black text-gray-900">16.8%</div>
+                        <span className="text-xs text-emerald-600 font-semibold">8,833 Drip link unlocks</span>
+                      </div>
+                    </div>
+
+                    {/* Drip Items List */}
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-extrabold text-gray-800 uppercase tracking-wider mb-2">Active & Scheduled Video Drip Links</h4>
+                      {videoAnalytics.map((item) => (
+                        <div key={item.id} className="bg-gray-50 border border-gray-200/80 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-purple-300 transition-all">
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                              <Play size={20} className="fill-current" />
+                            </div>
+                            <div className="min-w-0">
+                              <h5 className="font-bold text-gray-900 text-base truncate">{item.title}</h5>
+                              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                <span>👁️ {item.views.toLocaleString()} plays</span>
+                                <span>•</span>
+                                <span>⏱️ {item.watchTime}</span>
+                                <span>•</span>
+                                <span className="font-semibold text-purple-700">{item.retention} retention</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0">
+                            <span className={`px-3 py-1 rounded-full text-xs font-extrabold tracking-wide uppercase flex items-center gap-1.5 ${
+                              item.dripStatus === 'active' 
+                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                : item.dripStatus === 'dripping' 
+                                ? 'bg-amber-100 text-amber-700 border border-amber-200' 
+                                : 'bg-purple-100 text-purple-700 border border-purple-200'
+                            }`}>
+                              <Droplets size={12} />
+                              {item.dripTime}
+                            </span>
+                            <span className="text-xs font-bold text-gray-700 bg-white border border-gray-200 px-3 py-1 rounded-lg">
+                              CTR: {item.clickThrough}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* AI Predictive Engine Section */}
                   <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Traffic Forecast */}
@@ -1623,6 +1749,128 @@ const Dashboard = () => {
         </div>
 
       </div>
+
+      {/* Schedule Link Drip Modal */}
+      {dripModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 p-6 sm:p-8">
+            <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                  <Droplets size={20} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-gray-900 text-lg">Schedule Link Drip</h3>
+                  <p className="text-xs text-gray-500 font-medium">Automate content & video link releases</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setDripModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-full p-1.5 transition-colors cursor-pointer hover:bg-gray-100"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddDripLink} className="space-y-4">
+              <div>
+                <label className="block text-xs font-extrabold text-gray-700 uppercase tracking-wider mb-2">
+                  Drip Link Title
+                </label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. India's Got Latent Episode 6 (VIP Drip)"
+                  value={dripForm.title}
+                  onChange={(e) => setDripForm({ ...dripForm, title: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-600 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold text-gray-700 uppercase tracking-wider mb-2">
+                  Target Destination URL
+                </label>
+                <input 
+                  type="url" 
+                  required
+                  placeholder="https://youtube.com/@SamayRainaOfficial"
+                  value={dripForm.url}
+                  onChange={(e) => setDripForm({ ...dripForm, url: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-600 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold text-gray-700 uppercase tracking-wider mb-2">
+                  Drip Release Rule
+                </label>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setDripForm({ ...dripForm, dripType: 'time' })}
+                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      dripForm.dripType === 'time' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Clock size={14} />
+                    <span>Scheduled Date/Time</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDripForm({ ...dripForm, dripType: 'goal' })}
+                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      dripForm.dripType === 'goal' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Sparkles size={14} />
+                    <span>View Goal Unlock</span>
+                  </button>
+                </div>
+
+                {dripForm.dripType === 'time' ? (
+                  <input 
+                    type="datetime-local" 
+                    required
+                    value={dripForm.dripDate}
+                    onChange={(e) => setDripForm({ ...dripForm, dripDate: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-600 outline-none bg-white"
+                  />
+                ) : (
+                  <div>
+                    <input 
+                      type="number" 
+                      required
+                      placeholder="e.g. 10000 views"
+                      value={dripForm.targetViews}
+                      onChange={(e) => setDripForm({ ...dripForm, targetViews: Number(e.target.value) })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-600 outline-none"
+                    />
+                    <p className="text-[11px] text-gray-500 font-medium mt-1">Unlocks automatically once your profile video reaches target plays.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDripModalOpen(false)}
+                  className="flex-1 py-3 px-4 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 px-4 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl transition cursor-pointer shadow-md flex items-center justify-center gap-2"
+                >
+                  <Droplets size={14} />
+                  <span>Save Link Drip</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
