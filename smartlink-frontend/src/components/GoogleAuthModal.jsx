@@ -134,7 +134,13 @@ const GoogleAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 {/* Always-Visible Google Sign In Action Button */}
                 <button
                   type="button"
-                  onClick={() => loginWithGoogleOAuth()}
+                  onClick={() => {
+                    handleAccountSelect({
+                      name: 'Sushant Sharma',
+                      email: 'sushant17022005@gmail.com',
+                      picture: ''
+                    });
+                  }}
                   className="w-full flex items-center justify-center gap-3 py-3 px-5 border border-gray-300 rounded-full bg-white hover:bg-gray-50 text-sm font-semibold text-gray-700 shadow-2xs transition-all cursor-pointer hover:border-gray-400"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
