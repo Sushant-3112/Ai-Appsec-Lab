@@ -10,7 +10,6 @@ const ProductsMenu = () => {
       items: [
         { title: 'Link in bio', desc: 'Customize your Ai Appsec lab', link: '/dashboard?tab=profile' },
         { title: 'Link shortener', desc: 'Create trackable, shareable short links', link: '/dashboard?tab=links' },
-        { title: 'QR code generator', desc: 'Turn links into scannable QR codes', link: '/dashboard?tab=qrcode' },
         { title: 'Canva Background Editor', desc: 'Import your custom designs from Canva into your profile', link: '/dashboard?tab=templates' }
       ],
       socialText: 'Ai Appsec lab for every social platform',

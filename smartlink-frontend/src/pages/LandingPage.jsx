@@ -23,7 +23,7 @@ const LandingPage = () => {
                Everything you are. In one, simple link in bio.
              </h1>
              <p className="text-[1.1rem] sm:text-[1.2rem] font-[500] text-[#1a3622] mb-12 max-w-lg leading-relaxed tracking-[-0.01em]">
-               Join 50M+ people using Ai Appsec lab for their link in bio. One link to help you share everything you create, curate and sell from your Instagram, TikTok, Twitter, YouTube and other social media profiles.
+               Join 50M+ people using Ai Appsec lab for their link in bio. One link to help you share everything you create, curate and sell from your Instagram, Snapchat, Twitter, YouTube and other social media profiles.
              </p>
              <form onSubmit={handleClaim} className="flex flex-col sm:flex-row gap-4 max-w-xl relative">
                <div className="flex-1 bg-white rounded-[16px] flex items-center px-6 h-[72px] shadow-[0_2px_4px_rgba(0,0,0,0.05)] focus-within:ring-[3px] focus-within:ring-[#1a3622] transition-shadow">
@@ -92,7 +92,7 @@ const LandingPage = () => {
                Create and customize your Ai Appsec lab in minutes
              </h2>
              <p className="text-[1.1rem] sm:text-[1.3rem] font-[500] text-white mb-12 max-w-md leading-[1.6] tracking-[-0.01em]">
-               Connect your TikTok, Instagram, Twitter, website, store, videos, music, podcast, events and more. It all comes together in a link in bio landing page designed to convert.
+               Connect your Snapchat, Instagram, Twitter, website, store, videos, music, podcast, events and more. It all comes together in a link in bio landing page designed to convert.
              </p>
              <Link to="/register" className="inline-flex items-center justify-center bg-[#d2e823] hover:bg-[#c6d721] text-[#1a3622] h-[72px] px-12 rounded-full text-lg font-bold transition-all shadow-sm tracking-tight">
                Get started for free
@@ -593,7 +593,7 @@ const LandingPage = () => {
                   </div>
                </div>
                <h3 className="text-[#1a3622] text-[24px] font-bold mb-3">Video</h3>
-               <p className="text-[#254f30] text-[15px] font-medium leading-relaxed">Engage your visitors with video. Connect Twitch, TikTok, Facebook & YouTube and control how they display on your Ai Appsec lab.</p>
+                <p className="text-[#254f30] text-[15px] font-medium leading-relaxed">Engage your visitors with video. Connect Twitch, Snapchat, Facebook & YouTube and control how they display on your Ai Appsec lab.</p>
             </div>
             
             {/* Card 3: Email & SMS */}

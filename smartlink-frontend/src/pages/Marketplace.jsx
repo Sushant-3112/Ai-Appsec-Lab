@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook, Check, Shield, Code, Sparkles, ExternalLink, Plus, X, Upload, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Search, Music, Twitter, Youtube, DollarSign, Store, ShoppingBag, Radio, MessagesSquare, FileText, Share2, Facebook, Check, Shield, Code, Sparkles, ExternalLink, Plus, X, Upload, CheckCircle2, ArrowRight, Ghost } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -146,7 +146,7 @@ const Marketplace = () => {
   const shareApps = [
     { icon: <Music className="text-[#f9a01b]" fill="currentColor" size={28}/>, bgToken: 'bg-white border-2 border-gray-100', title: 'Audiomack', description: 'Add an Audiomack player to your Ai Appsec lab', url: 'https://audiomack.com' },
     { icon: <Music className="text-white" fill="currentColor" size={28}/>, bgToken: 'bg-[#ff5500]', title: 'SoundCloud', description: 'Get your music heard on SoundCloud', url: 'https://soundcloud.com' },
-    { icon: <Music className="text-white" size={28}/>, bgToken: 'bg-black', title: 'TikTok', description: 'Share your TikToks on your Ai Appsec lab', url: 'https://tiktok.com' },
+    { icon: <Ghost className="text-black" size={28}/>, bgToken: 'bg-[#fffc00]', title: 'Snapchat', description: 'Share your Snapchat stories on your Ai Appsec lab', url: 'https://snapchat.com' },
     { icon: <Twitter className="text-white" fill="currentColor" size={24} />, bgToken: 'bg-black', title: 'X (Twitter)', description: 'Showcase your posts and X feed', url: 'https://x.com' },
     { icon: <Youtube className="text-[#ff0000]" fill="currentColor" size={28}/>, bgToken: 'bg-white border flex items-center justify-center', title: 'YouTube', description: 'Share YouTube videos on your Ai Appsec lab', url: 'https://www.youtube.com/@SamayRainaOfficial' },
     { icon: <div className="text-white font-[900] text-3xl mb-1 tracking-tighter">C</div>, bgToken: 'bg-black', title: 'Cameo', description: 'Make impossible fan connections possible', url: 'https://cameo.com' },

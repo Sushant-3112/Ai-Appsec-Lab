@@ -70,11 +70,6 @@ const BeachCardTemplate = ({ template, onClick }) => (
       </div>
     </div>
 
-    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex justify-center items-center">
-      <span className="bg-white text-black font-extrabold text-sm px-7 py-3.5 rounded-[100px] shadow-2xl">
-        Use this template
-      </span>
-    </div>
   </div>
 );
 
@@ -135,11 +130,6 @@ const LinktreeCard = ({ template, onClick }) => (
       </div>
     </div>
 
-    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex justify-center items-center">
-      <span className="bg-white text-black font-extrabold text-sm px-7 py-3.5 rounded-[100px] shadow-2xl">
-        Use this template
-      </span>
-    </div>
   </div>
 );
 
@@ -184,11 +174,6 @@ const TemplateCard = ({ template, onClick }) => {
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex justify-center items-center">
-         <span className="bg-white text-black font-extrabold text-sm px-7 py-3.5 rounded-[100px] shadow-2xl hover:scale-105 transition-transform">
-           Use this template
-         </span>
-      </div>
     </div>
   );
 };

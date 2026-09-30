@@ -107,7 +107,7 @@
 - 🎥 YouTube (Videos, Shorts, Community)
 - 🐦 Twitter/X (Tweets, Threads)
 - 📘 Facebook (Posts, Stories)
-- 🎵 TikTok (Videos)
+- 👻 Snapchat (Stories, Spotlights)
 - 💼 LinkedIn (Posts, Articles)
 
 ### Content Types
@@ -119,7 +119,7 @@
    - Image with text overlay
 
 2. **Video Posts**
-   - Short-form (Reels, Shorts, TikTok)
+   - Short-form (Reels, Shorts, Snapchat)
    - Long-form (YouTube)
    - Live streams
 
@@ -273,7 +273,7 @@ Sunday:    Weekly recap
 - Instagram: 1-2 posts/day
 - Twitter: 3-5 tweets/day
 - YouTube: 1-2 videos/week
-- TikTok: 1-3 videos/day
+- Snapchat: 1-3 posts/day
 - LinkedIn: 1 post/day
 
 ### Hashtag Strategy

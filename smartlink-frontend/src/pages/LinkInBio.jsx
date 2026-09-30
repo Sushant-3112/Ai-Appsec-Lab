@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link as LinkIcon, Sparkles, CheckCircle, ArrowRight, Instagram, Twitter, Youtube, Music } from 'lucide-react';
+import { Link as LinkIcon, Sparkles, CheckCircle, ArrowRight, Instagram, Twitter, Youtube, Ghost } from 'lucide-react';
 
 const LinkInBio = () => {
   const navigate = useNavigate();
@@ -140,10 +140,10 @@ const LinkInBio = () => {
               <span className="text-sm font-semibold text-gray-700">YouTube</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-black to-gray-800 flex items-center justify-center text-white shadow-lg">
-                <Music size={32} />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center text-white shadow-lg">
+                <Ghost size={32} />
               </div>
-              <span className="text-sm font-semibold text-gray-700">TikTok</span>
+              <span className="text-sm font-semibold text-gray-700">Snapchat</span>
             </div>
           </div>
         </div>

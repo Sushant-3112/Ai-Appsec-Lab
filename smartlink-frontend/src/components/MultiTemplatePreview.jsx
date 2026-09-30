@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, MapPin, Mail, Youtube, Instagram, Twitter, Music, Globe, Zap } from 'lucide-react';
+import { CheckCircle, MapPin, Mail, Youtube, Instagram, Twitter, Music, Globe, Zap, Ghost } from 'lucide-react';
 import templatesData from '../data/templateData';
 
 /**
@@ -119,7 +119,7 @@ const MultiTemplatePreview = ({ user, profileData, links, onTemplateSelect }) =>
                 if (link.type === 'youtube') Icon = Youtube;
                 else if (link.type === 'instagram') Icon = Instagram;
                 else if (link.type === 'twitter') Icon = Twitter;
-                else if (link.type === 'tiktok') Icon = Music;
+                else if (link.type === 'snapchat') Icon = Ghost;
 
                 return (
                   <div 

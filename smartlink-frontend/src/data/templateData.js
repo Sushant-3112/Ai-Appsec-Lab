@@ -24,7 +24,7 @@ const templatesData = [
     textClass: "text-white",
     btnClass: "bg-[#e8aa82] text-white shadow-md",
     socialClass: "text-white/80",
-    buttons: ["Youtube Channel", "Tiktok Account", "Instagram"]
+    buttons: ["Youtube Channel", "Snapchat Account", "Instagram"]
   },
   {
     id: 3,
@@ -187,25 +187,6 @@ const templatesData = [
     variant: "linktree-c",
     buttons: ["Digital Product", "Physical Product", "Avid Blogger", "Medium", "Brunch"],
     category: "Influencer and Creator"
-  },
-
-  // ── NEW: Image 2 – Beach/Scenic background, card-style wide link buttons ──
-  {
-    id: 15,
-    name: "Sushant Sharma",
-    description: "An effective Instagram bio concisely conveys your personality, niche, or purpose, often using emojis to show rather than tell.",
-    bgImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1200",
-    bgOverlay: "bg-teal-900/30",
-    avatar: "",
-    avatarInitials: "SS",
-    textClass: "text-white",
-    btnClass: "bg-white/90 text-teal-900 font-semibold",
-    socialClass: "text-white",
-    variant: "beach-card",
-    location: "Mumbai, India",
-    email: "sushant.sharma@somaiya.edu",
-    buttons: ["TheBoys", "From"],
-    category: "Social Media"
   }
 ];
 

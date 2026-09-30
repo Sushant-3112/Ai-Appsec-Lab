@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Share2, Instagram, Twitter, Youtube, Music, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
+import { Share2, Instagram, Twitter, Youtube, Ghost, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
 
 const SocialMediaManagement = () => {
   const navigate = useNavigate();
@@ -48,10 +48,10 @@ const SocialMediaManagement = () => {
             <p className="text-white/80 text-sm">Showcase your latest videos</p>
           </div>
 
-          <div className="bg-gradient-to-br from-black to-gray-800 rounded-2xl p-8 text-white shadow-xl hover:scale-105 transition-transform cursor-pointer">
-            <Music size={48} className="mb-4" />
-            <h3 className="text-2xl font-bold mb-2">TikTok</h3>
-            <p className="text-white/80 text-sm">Link your viral TikTok content</p>
+          <div className="bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl p-8 text-white shadow-xl hover:scale-105 transition-transform cursor-pointer">
+            <Ghost size={48} className="mb-4" />
+            <h3 className="text-2xl font-bold mb-2">Snapchat</h3>
+            <p className="text-white/80 text-sm">Link your Snapchat stories and profile</p>
           </div>
         </div>
 
@@ -117,10 +117,10 @@ const SocialMediaManagement = () => {
             All Your Platforms, One Dashboard
           </h2>
           <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-            Manage Instagram, Twitter, YouTube, TikTok, LinkedIn, Facebook, and more from a single, unified interface.
+            Manage Instagram, Twitter, YouTube, Snapchat, LinkedIn, Facebook, and more from a single, unified interface.
           </p>
           <div className="flex items-center justify-center gap-6 flex-wrap">
-            {[Instagram, Twitter, Youtube, Music, Share2].map((Icon, i) => (
+            {[Instagram, Twitter, Youtube, Ghost, Share2].map((Icon, i) => (
               <div key={i} className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
                 <Icon size={32} className="text-gray-600" />
               </div>

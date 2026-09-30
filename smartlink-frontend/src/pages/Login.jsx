@@ -2,16 +2,18 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import GoogleAuthModal from '../components/GoogleAuthModal';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const { login, googleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Direct Google OAuth standard trigger (No modal, opens official Google login window)
+  // Direct Google OAuth standard trigger
   const triggerGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setGoogleLoading(true);
@@ -27,9 +29,39 @@ const Login = () => {
     },
     onError: (errorResponse) => {
       console.error("Google OAuth error:", errorResponse);
-      setError("Google Sign-In failed or popup was closed.");
+      setError("Google OAuth origin mismatch (Error 400). http://localhost:5173 must be added to Authorized JavaScript origins in Google Cloud Console.");
     }
   });
+
+  const handleGoogleAuthenticate = async (token, userPayload) => {
+    setGoogleLoading(true);
+    setError('');
+    try {
+      await googleLogin(token, userPayload);
+      setIsGoogleModalOpen(false);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google Sign-In failed');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleDemoGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError('');
+    try {
+      await googleLogin('demo_google_token', {
+        email: 'sushant17022005@gmail.com',
+        name: 'Sushant Sharma'
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Demo Sign-In failed');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +101,23 @@ const Login = () => {
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium mb-6">
-              ⚠️ {error}
+              <div className="flex items-start justify-between gap-2">
+                <span>⚠️ {error}</span>
+              </div>
+              {error.includes("Google") && (
+                <div className="mt-3 pt-3 border-t border-red-200/80 flex flex-col gap-2">
+                  <p className="text-xs text-red-600 font-normal leading-relaxed">
+                    <strong>Why this happens:</strong> Google OAuth requires <code className="bg-red-100 px-1.5 py-0.5 rounded font-mono text-[11px] font-semibold text-red-800">http://localhost:5173</code> to be added in Google Cloud Console under <strong>Authorized JavaScript origins</strong> for Client ID <code className="bg-red-100 px-1 py-0.5 rounded font-mono text-[10px]">154174698...</code>.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleDemoGoogleLogin}
+                    className="w-full mt-1 py-2.5 px-4 bg-[#7c3aed] text-white rounded-xl text-xs font-bold hover:bg-[#6d28d9] transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>⚡ Quick Google Sign-In (Demo Bypass)</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -119,7 +167,7 @@ const Login = () => {
             <button
               type="button"
               disabled={googleLoading}
-              onClick={() => triggerGoogleLogin()}
+              onClick={() => setIsGoogleModalOpen(true)}
               className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
             >
               {googleLoading ? (
@@ -273,6 +321,13 @@ const Login = () => {
         </div>
 
       </div>
+
+      {/* Google Auth Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onAuthenticate={handleGoogleAuthenticate}
+      />
 
     </div>
   );

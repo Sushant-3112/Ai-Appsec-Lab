@@ -3,8 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ProductsMenu from './ProductsMenu';
 import LearnMenu from './LearnMenu';
-import { QRCodeSVG } from 'qrcode.react';
-import { Share2, QrCode, Copy, Check, X, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -12,58 +11,79 @@ const Navbar = () => {
   const location = useLocation();
   const [isProductsHovered, setIsProductsHovered] = useState(false);
   const [isLearnHovered, setIsLearnHovered] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hide global navbar on dedicated full-screen auth pages
   if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
 
-  const shareUrl = window.location.origin;
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
+  const navLinks = [
+    { name: 'Templates', path: '/templates' },
+    { name: 'Marketplace', path: '/marketplace' },
+    { name: 'Discover', path: '/discover' },
+    { name: 'Pricing', path: '/pricing' },
+  ];
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-2xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex justify-between items-center">
+    <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
         
         {/* Left Logo & Navigation Links */}
-        <div className="flex items-center space-x-8">
-          <Link to="/" className="flex items-center text-slate-900 group">
+        <div className="flex items-center space-x-8 h-full">
+          <Link to="/" className="flex items-center text-slate-900 group shrink-0">
             <span className="font-black text-2xl tracking-tight group-hover:text-blue-600 transition-colors">Ai Appsec lab</span>
             <span className="font-black text-2xl text-blue-600 ml-0.5">*</span>
           </Link>
           
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-7 h-full">
+            {/* Products Dropdown */}
             <div 
               onMouseEnter={() => setIsProductsHovered(true)}
               onMouseLeave={() => setIsProductsHovered(false)}
-              className="relative py-4"
+              className="relative flex items-center h-full"
             >
-              <Link to="/products" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Products</Link>
+              <Link 
+                to="/products" 
+                className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors flex items-center gap-1 py-2"
+              >
+                <span>Products</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isProductsHovered ? 'rotate-180 text-blue-600' : 'text-gray-400'}`} />
+              </Link>
               {isProductsHovered && (
-                <div className="absolute left-0 top-full pt-1">
+                <div className="absolute left-0 top-full pt-1 z-50">
                   <ProductsMenu />
                 </div>
               )}
             </div>
-            <Link to="/templates" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Templates</Link>
-            <Link to="/marketplace" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Marketplace</Link>
-            <Link to="/discover" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Discover</Link>
-            <Link to="/pricing" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Pricing</Link>
+
+            {/* Standard Nav Links */}
+            {navLinks.map((link) => (
+              <div key={link.name} className="flex items-center h-full">
+                <Link 
+                  to={link.path} 
+                  className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors py-2"
+                >
+                  {link.name}
+                </Link>
+              </div>
+            ))}
+
+            {/* Learn Dropdown */}
             <div 
               onMouseEnter={() => setIsLearnHovered(true)}
               onMouseLeave={() => setIsLearnHovered(false)}
-              className="relative py-4"
+              className="relative flex items-center h-full"
             >
-              <Link to="/learn" className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors">Learn</Link>
+              <Link 
+                to="/learn" 
+                className="text-gray-600 hover:text-gray-900 font-semibold text-sm transition-colors flex items-center gap-1 py-2"
+              >
+                <span>Learn</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isLearnHovered ? 'rotate-180 text-blue-600' : 'text-gray-400'}`} />
+              </Link>
               {isLearnHovered && (
-                <div className="absolute right-[-100px] xl:right-[-250px] top-full pt-1">
+                <div className="absolute right-0 top-full pt-1 z-50">
                   <LearnMenu />
                 </div>
               )}
@@ -71,214 +91,82 @@ const Navbar = () => {
           </nav>
         </div>
         
-        {/* Right User Auth & Quick Share Actions */}
+        {/* Right User Auth */}
         <div className="flex items-center space-x-3">
-          
-          {/* Quick Share & QR Button (Enhanced UX) */}
-          <button 
-            onClick={() => setIsShareModalOpen(true)}
-            className="flex items-center gap-1.5 text-gray-700 bg-gray-100 hover:bg-gray-200 px-3.5 py-2 rounded-full font-bold text-xs transition-all cursor-pointer border border-gray-200"
-            title="Generate QR Code & Share Profile"
-          >
-            <QrCode size={15} className="text-blue-600" />
-            <span className="hidden sm:inline">QR Code</span>
-          </button>
-
           {user ? (
             <>
-              <Link to="/dashboard" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all">Dashboard</Link>
-              <button onClick={logout} className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all cursor-pointer">
+              <Link to="/dashboard" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all border border-gray-200/80">Dashboard</Link>
+              <button onClick={logout} className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all cursor-pointer shadow-xs">
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all">Log in</Link>
+              <Link to="/login" className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2.5 rounded-full font-bold text-sm transition-all border border-gray-200/80">Log in</Link>
               <Link to="/register" className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all shadow-xs">
                 Sign up free
               </Link>
             </>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
+            aria-label="Toggle Menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
 
-      {/* Share & Live QR Code Modal Popup (Fixed Top Clipping) */}
-      {isShareModalOpen && (
-        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto font-sans animate-fadeIn flex flex-col justify-center items-center">
-          <div className="bg-white rounded-3xl max-w-sm w-full my-auto shadow-2xl border border-gray-200 text-gray-900 relative overflow-hidden flex flex-col max-h-[85vh] animate-scaleUp">
-            
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-5 py-3.5 border-b border-gray-100 bg-gray-50/90 shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                  <QrCode size={16} />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-sm font-extrabold text-gray-900 leading-tight">Share Bio Profile & QR</h3>
-                  <p className="text-[10px] text-gray-500 font-medium">Scan code or copy instant link</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsShareModalOpen(false)}
-                className="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200 transition cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* QR Code Graphic Display */}
-            <div className="p-5 flex flex-col items-center text-center space-y-3.5 overflow-y-auto">
-              
-              {/* Main White QR Container */}
-              <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-md flex flex-col items-center justify-center w-full max-w-[210px]">
-                <div id="qr-code-svg-container" className="p-1 bg-white rounded-lg">
-                  <QRCodeSVG 
-                    id="qr-code-svg"
-                    value={shareUrl}
-                    size={140}
-                    level="H"
-                    includeMargin={false}
-                  />
-                </div>
-                <span className="mt-2.5 text-[9px] font-black text-blue-600 tracking-widest uppercase flex items-center gap-1 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
-                  <ShieldCheck size={11} /> Ai Appsec Verified
-                </span>
-              </div>
-
-              {/* Download QR Button */}
-              <button
-                onClick={() => {
-                  const svg = document.getElementById('qr-code-svg');
-                  if (svg) {
-                    const svgData = new XMLSerializer().serializeToString(svg);
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    const img = new Image();
-                    img.onload = () => {
-                      canvas.width = img.width + 40;
-                      canvas.height = img.height + 40;
-                      if (ctx) {
-                        ctx.fillStyle = "#ffffff";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 20, 20);
-                        const pngFile = canvas.toDataURL("image/png");
-                        const downloadLink = document.createElement("a");
-                        downloadLink.download = "ai-appsec-lab-qrcode.png";
-                        downloadLink.href = pngFile;
-                        downloadLink.click();
-                      }
-                    };
-                    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-                  }
-                }}
-                className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold text-[11px] rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 border border-gray-200"
-              >
-                <span>📥 Download QR Image</span>
-              </button>
-
-              {/* URL Input Box + Copy Button */}
-              <div className="w-full relative flex items-center">
-                <input 
-                  type="text" 
-                  readOnly 
-                  value={shareUrl}
-                  className="w-full pl-3 pr-20 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-mono font-semibold text-gray-700 outline-none"
-                />
-                <button
-                  onClick={handleCopyLink}
-                  className="absolute right-1 px-2.5 py-1.5 bg-gray-900 hover:bg-black text-white text-[11px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer"
-                >
-                  {copied ? (
-                    <span className="text-emerald-400 flex items-center gap-1"><Check size={11} /> Copied!</span>
-                  ) : (
-                    <span className="flex items-center gap-1"><Copy size={11} /> Copy</span>
-                  )}
-                </button>
-              </div>
-
-              {/* Social Share Buttons */}
-              <div className="w-full pt-2.5 border-t border-gray-100">
-                <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Share directly to</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <a 
-                    href={`https://twitter.com/intent/tweet?text=Check%20out%20my%20Ai%20Appsec%20lab%20profile!&url=${encodeURIComponent(shareUrl)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="py-2 px-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition text-center"
-                  >
-                    Twitter / X
-                  </a>
-                  <a 
-                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="py-2 px-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold hover:bg-emerald-700 transition text-center"
-                  >
-                    WhatsApp
-                  </a>
-                  <a 
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="py-2 px-2 bg-blue-600 text-white rounded-xl text-[10px] font-bold hover:bg-blue-700 transition text-center"
-                  >
-                    LinkedIn
-                  </a>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
+      {/* Mobile Collapsible Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white border-b border-gray-100 px-6 py-5 space-y-4 animate-fadeIn">
+          <Link 
+            to="/products" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Products
+          </Link>
+          <Link 
+            to="/templates" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Templates
+          </Link>
+          <Link 
+            to="/marketplace" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Marketplace
+          </Link>
+          <Link 
+            to="/discover" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Discover
+          </Link>
+          <Link 
+            to="/pricing" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Pricing
+          </Link>
+          <Link 
+            to="/learn" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-gray-700 font-bold text-base hover:text-blue-600"
+          >
+            Learn
+          </Link>
         </div>
       )}
-
-      {/* Floating Corner QR Badge & Widget (Pops up at bottom-right corner of website) */}
-      <div className="fixed bottom-6 right-6 z-[80] flex flex-col items-end">
-        {/* Floating Expanded Corner QR Card */}
-        {isShareModalOpen && (
-          <div className="mb-3 bg-white p-4 rounded-3xl shadow-2xl border border-gray-200 text-gray-900 w-64 flex flex-col items-center animate-slideUp">
-            <div className="flex justify-between items-center w-full mb-2">
-              <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1">
-                <QrCode size={12} /> Scan Profile QR
-              </span>
-              <button 
-                onClick={() => setIsShareModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 text-xs font-bold px-1.5 py-0.5 rounded-full hover:bg-gray-100"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="p-2 bg-white rounded-xl border border-gray-100 shadow-xs mb-3">
-              <QRCodeSVG 
-                value={shareUrl}
-                size={130}
-                level="H"
-              />
-            </div>
-
-            <button
-              onClick={handleCopyLink}
-              className="w-full py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-            >
-              {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-              <span>{copied ? 'Link Copied!' : 'Copy Profile Link'}</span>
-            </button>
-          </div>
-        )}
-
-        {/* Bottom Corner Floating Button */}
-        <button
-          onClick={() => setIsShareModalOpen(!isShareModalOpen)}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-full shadow-2xl border-2 border-white flex items-center gap-2 font-bold text-xs transition transform hover:scale-105 active:scale-95 cursor-pointer"
-          title="Toggle Floating Corner QR Code"
-        >
-          <QrCode size={20} />
-          <span className="hidden md:inline font-extrabold">Profile QR</span>
-        </button>
-      </div>
-
     </header>
   );
 };

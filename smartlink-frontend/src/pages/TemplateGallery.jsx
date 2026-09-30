@@ -21,7 +21,7 @@ const TemplateGallery = () => {
     {
       title: "Professional Layouts",
       subtitle: "Clean and elegant",
-      templates: [15, 1, 4] // Beach, Katy Delma, Brew & Bite
+      templates: [1, 4, 6] // Katy Delma, Brew & Bite, Rich Gerald
     },
     {
       title: "Creative Styles",
@@ -121,14 +121,6 @@ const TemplateGallery = () => {
               <div className="w-4 h-4 rounded-full bg-white/20" />
               <div className="w-4 h-4 rounded-full bg-white/20" />
             </div>
-          </div>
-
-          {/* Hover Overlay */}
-          <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3 transition-opacity duration-300 z-30 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-            <button className="bg-white text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">
-              Use Template
-            </button>
-            <p className="text-white text-xs font-medium">{template.name}</p>
           </div>
         </div>
 

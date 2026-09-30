@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText, QrCode, Download, Copy, Check } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { MoreHorizontal, Share, CheckCircle, Mail, MapPin, Youtube, Instagram, Twitter, Linkedin, Github, Globe, Music, Lock, Send, Eye, Users, Phone, MessageSquare, DollarSign, ShoppingBag, Radio, FileText, Download, Copy, Check, Ghost } from 'lucide-react';
 import templatesData from '../data/templateData';
 
 const PublicProfile = () => {
@@ -27,10 +26,6 @@ const PublicProfile = () => {
   const [showTemplateDrawer, setShowTemplateDrawer] = useState(false);
   const [savingTheme, setSavingTheme] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
-  const [qrCopied, setQrCopied] = useState(false);
-
-  const [showQrModal, setShowQrModal] = useState(false);
-  const [qrModalCopied, setQrModalCopied] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -189,7 +184,7 @@ const PublicProfile = () => {
   let twitter = '';
   let instagram = '';
   let youtube = '';
-  let tiktok = '';
+  let snapchat = '';
 
   try {
     const configObj = JSON.parse(profile.theme_config);
@@ -199,7 +194,7 @@ const PublicProfile = () => {
     twitter = configObj.twitter || '';
     instagram = configObj.instagram || '';
     youtube = configObj.youtube || '';
-    tiktok = configObj.tiktok || '';
+    snapchat = configObj.snapchat || configObj.tiktok || '';
   } catch (e) {
     parsedTheme = profile.theme_config || 'light';
   }
@@ -221,7 +216,7 @@ const PublicProfile = () => {
       case 'twitter': return <Twitter size={20} className="mr-3" />;
       case 'linkedin': return <Linkedin size={20} className="mr-3" />;
       case 'github': return <Github size={20} className="mr-3" />;
-      case 'tiktok': return <Music size={20} className="mr-3" />;
+      case 'snapchat': return <Ghost size={20} className="mr-3" />;
       case 'spotify': return <Radio size={20} className="mr-3" />;
       case 'paypal': return <DollarSign size={20} className="mr-3" />;
       case 'stripe': return <CheckCircle size={20} className="mr-3" />;
@@ -252,126 +247,7 @@ const PublicProfile = () => {
       )}
       <div className={`absolute inset-0 ${selectedTemplate.bgOverlay}`}></div>
       
-      {/* Top Left Empty Space: Embedded Clickable QR Code Card */}
-      <div className="absolute top-6 left-6 z-30 hidden sm:flex flex-col items-center">
-        <div 
-          onClick={() => setShowQrModal(true)}
-          className="bg-white/95 backdrop-blur-xl p-3 rounded-2xl border border-white/40 shadow-2xl transition-all duration-300 hover:scale-105 text-center cursor-pointer group"
-          title="Click to expand QR Code & Download"
-        >
-          <div className="p-1 bg-white rounded-xl">
-            <QRCodeSVG 
-              value={profileUrl}
-              size={90}
-              level="H"
-            />
-          </div>
-          <p className="mt-1.5 text-[9px] font-extrabold text-gray-900 tracking-wider uppercase group-hover:text-blue-600 transition-colors">
-            Scan Profile QR 🔍
-          </p>
-          <div className="mt-1 w-full bg-gray-900 group-hover:bg-blue-600 text-white text-[9px] font-bold py-1 rounded-md transition flex items-center justify-center gap-1">
-            <span>Expand & Download</span>
-          </div>
-        </div>
-      </div>
 
-      {/* Full-Screen Interactive QR Code Popup Modal */}
-      {showQrModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md p-4 flex flex-col justify-center items-center font-sans animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-gray-200 text-gray-900 relative overflow-hidden flex flex-col my-auto animate-scaleUp">
-            
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100 bg-gray-50">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                  <QrCode size={16} />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-sm font-extrabold text-gray-900">Profile QR Code</h3>
-                  <p className="text-[10px] text-gray-500">{profile.full_name || `@${profile.username}`}</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowQrModal(false)}
-                className="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200 transition cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* QR Body */}
-            <div className="p-6 flex flex-col items-center text-center space-y-4">
-              <div className="p-4 bg-white rounded-2xl border-2 border-gray-100 shadow-xl flex flex-col items-center justify-center">
-                <div id="full-profile-qr-container" className="p-1 bg-white rounded-xl">
-                  <QRCodeSVG 
-                    id="full-profile-qr-svg"
-                    value={profileUrl}
-                    size={160}
-                    level="H"
-                  />
-                </div>
-                <span className="mt-2.5 text-[9px] font-black text-blue-600 tracking-widest uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                  ★ Ai Appsec Verified
-                </span>
-              </div>
-
-              {/* Download Image Button */}
-              <button
-                onClick={() => {
-                  const svg = document.getElementById('full-profile-qr-svg');
-                  if (svg) {
-                    const svgData = new XMLSerializer().serializeToString(svg);
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    const img = new Image();
-                    img.onload = () => {
-                      canvas.width = img.width + 40;
-                      canvas.height = img.height + 40;
-                      if (ctx) {
-                        ctx.fillStyle = "#ffffff";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 20, 20);
-                        const pngFile = canvas.toDataURL("image/png");
-                        const downloadLink = document.createElement("a");
-                        downloadLink.download = `${profile.username}-qrcode.png`;
-                        downloadLink.href = pngFile;
-                        downloadLink.click();
-                      }
-                    };
-                    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-                  }
-                }}
-                className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-2 shadow-md"
-              >
-                <Download size={14} />
-                <span>Download High-Res QR Image</span>
-              </button>
-
-              {/* Copy URL */}
-              <div className="w-full relative flex items-center">
-                <input 
-                  type="text" 
-                  readOnly 
-                  value={profileUrl}
-                  className="w-full pl-3 pr-20 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-mono font-semibold text-gray-700 outline-none"
-                />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(profileUrl);
-                    setQrModalCopied(true);
-                    setTimeout(() => setQrModalCopied(false), 2000);
-                  }}
-                  className="absolute right-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg transition cursor-pointer"
-                >
-                  {qrModalCopied ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      )}
       
       {/* User-Side Template Switcher Pill (Bottom Left Floating) */}
       <div className="fixed bottom-6 left-6 z-[99] flex flex-col items-start gap-2">
@@ -643,12 +519,12 @@ const PublicProfile = () => {
         )}
 
         {/* Bottom Social Icons */}
-        {(twitter || instagram || youtube || tiktok) && (
+        {(twitter || instagram || youtube || snapchat) && (
           <div className={`flex gap-6 mt-12 mb-4 ${socialClass}`}>
             {youtube && <a href={youtube} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"><Youtube size={26} /></a>}
             {instagram && <a href={instagram} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"><Instagram size={26} /></a>}
             {twitter && <a href={twitter} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"><Twitter size={26} /></a>}
-            {tiktok && <a href={tiktok} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"><Music size={26} /></a>}
+            {snapchat && <a href={snapchat} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-all"><Ghost size={26} /></a>}
           </div>
         )}
       </div>

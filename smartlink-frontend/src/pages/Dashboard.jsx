@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Plus, Trash2, ExternalLink, BarChart2, Save, User as UserIcon, Palette, Youtube, Instagram, Twitter, Music, Mail, MapPin, Globe, CheckCircle, Download, Bot, Activity, Calendar, ArrowUpRight, ArrowDownRight, MoreHorizontal, DollarSign, Star, StarOff, LayoutTemplate, Check, X, ShoppingBag, Store } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, BarChart2, Save, User as UserIcon, Palette, Youtube, Instagram, Twitter, Music, Mail, MapPin, Globe, CheckCircle, Download, Bot, Activity, Calendar, ArrowUpRight, ArrowDownRight, MoreHorizontal, DollarSign, Star, StarOff, LayoutTemplate, Check, X, ShoppingBag, Store, Ghost } from 'lucide-react';
 import { Navigate, useLocation } from 'react-router-dom';
 import templatesData from '../data/templateData';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
@@ -37,7 +37,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const analyticsRef = useRef(null);
   
-  const [profileData, setProfileData] = useState({ full_name: '', bio: '', avatar: '', theme_config: 'light', contact_email: '', location: '', twitter: '', instagram: '', youtube: '', tiktok: '' });
+  const [profileData, setProfileData] = useState({ full_name: '', bio: '', avatar: '', theme_config: 'light', contact_email: '', location: '', twitter: '', instagram: '', youtube: '', snapchat: '' });
   const [updateMsg, setUpdateMsg] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [qrDesign, setQrDesign] = useState({ id: 'classic', name: 'Classic Dark', fgColor: '#000000', bgColor: '#ffffff' });
@@ -67,7 +67,7 @@ const Dashboard = () => {
       let parsedTwitter = '';
       let parsedInstagram = '';
       let parsedYoutube = '';
-      let parsedTiktok = '';
+      let parsedSnapchat = '';
       let parsedTipJarEnabled = false;
       let parsedTipJarMessage = '';
       
@@ -79,7 +79,7 @@ const Dashboard = () => {
         parsedTwitter = config.twitter || '';
         parsedInstagram = config.instagram || '';
         parsedYoutube = config.youtube || '';
-        parsedTiktok = config.tiktok || '';
+        parsedSnapchat = config.snapchat || config.tiktok || '';
         parsedTipJarEnabled = config.tip_jar_enabled || false;
         parsedTipJarMessage = config.tip_jar_message || '';
       } catch (e) {
@@ -96,7 +96,7 @@ const Dashboard = () => {
         twitter: parsedTwitter,
         instagram: parsedInstagram,
         youtube: parsedYoutube,
-        tiktok: parsedTiktok,
+        snapchat: parsedSnapchat,
         tip_jar_enabled: parsedTipJarEnabled,
         tip_jar_message: parsedTipJarMessage
       });
@@ -142,7 +142,7 @@ const Dashboard = () => {
       if (!fetchedAnalytics.referrals || fetchedAnalytics.referrals.length === 0) {
         fetchedAnalytics.referrals = [
           { name: 'youtube.com', value: 16391 },
-          { name: 'tiktok.com', value: 8545 },
+          { name: 'snapchat.com', value: 8545 },
           { name: 'instagram.com', value: 7321 },
           { name: 'twitter.com', value: 3153 },
           { name: 'vimeo.com', value: 918 }
@@ -220,7 +220,7 @@ const Dashboard = () => {
           twitter: profileData.twitter,
           instagram: profileData.instagram,
           youtube: profileData.youtube,
-          tiktok: profileData.tiktok,
+          snapchat: profileData.snapchat,
           tip_jar_enabled: profileData.tip_jar_enabled,
           tip_jar_message: profileData.tip_jar_message
         })
@@ -244,7 +244,7 @@ const Dashboard = () => {
         twitter: profileData.twitter,
         instagram: profileData.instagram,
         youtube: profileData.youtube,
-        tiktok: profileData.tiktok
+        snapchat: profileData.snapchat
       });
       await axios.put('/api/profile', { theme_config: payload });
       setUpdateMsg('Theme applied!');
@@ -278,7 +278,7 @@ const Dashboard = () => {
             twitter: updatedData.twitter,
             instagram: updatedData.instagram,
             youtube: updatedData.youtube,
-            tiktok: updatedData.tiktok
+            snapchat: updatedData.snapchat
           })
         };
         axios.put('/api/profile', payload).catch(err => console.error(err));
@@ -513,7 +513,7 @@ const Dashboard = () => {
                     if (link.type === 'youtube') Icon = Youtube;
                     else if (link.type === 'instagram') Icon = Instagram;
                     else if (link.type === 'twitter') Icon = Twitter;
-                    else if (link.type === 'tiktok') Icon = Music;
+                    else if (link.type === 'snapchat') Icon = Ghost;
                     
                     return (
                       <a
@@ -532,12 +532,12 @@ const Dashboard = () => {
               )}
 
               {/* Bottom Social Icons */}
-              {(profileData.twitter || profileData.instagram || profileData.youtube || profileData.tiktok) && (
+              {(profileData.twitter || profileData.instagram || profileData.youtube || profileData.snapchat) && (
                 <div className={`flex gap-5 mt-auto pt-8 mb-2 ${socialClass}`}>
                   {profileData.youtube && <a href={profileData.youtube} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform"><Youtube size={20} /></a>}
                   {profileData.instagram && <a href={profileData.instagram} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform"><Instagram size={20} /></a>}
                   {profileData.twitter && <a href={profileData.twitter} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform"><Twitter size={20} /></a>}
-                  {profileData.tiktok && <a href={profileData.tiktok} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform"><Music size={20} /></a>}
+                  {profileData.snapchat && <a href={profileData.snapchat} target="_blank" rel="noreferrer" className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform"><Ghost size={20} /></a>}
                 </div>
               )}
             </div>
@@ -647,7 +647,7 @@ const Dashboard = () => {
                             <option value="spotify">🎵 Spotify Music</option>
                             <option value="instagram">📸 Instagram Profile</option>
                             <option value="twitter">🐦 Twitter / X</option>
-                            <option value="tiktok">🎵 TikTok</option>
+                            <option value="snapchat">👻 Snapchat</option>
                             <option value="linkedin">💼 LinkedIn</option>
                             <option value="github">💻 GitHub</option>
                             <option value="email_collect">📧 Email Collection</option>
@@ -843,13 +843,13 @@ const Dashboard = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">TikTok URL</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Snapchat URL</label>
                         <input 
                           type="url" 
                           className="w-full p-3 rounded-lg border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                          value={profileData.tiktok}
-                          onChange={e => setProfileData({...profileData, tiktok: e.target.value})}
-                          placeholder="https://tiktok.com/..."
+                          value={profileData.snapchat}
+                          onChange={e => setProfileData({...profileData, snapchat: e.target.value})}
+                          placeholder="https://snapchat.com/add/..."
                         />
                       </div>
                     </div>

@@ -77,7 +77,7 @@ const TemplateEditor = () => {
             twitter: formData.socials.twitter ? 'https://twitter.com' : '',
             instagram: formData.socials.instagram ? 'https://instagram.com' : '',
             youtube: formData.socials.youtube ? 'https://youtube.com' : '',
-            tiktok: formData.socials.music ? 'https://tiktok.com' : ''
+            snapchat: formData.socials.music ? 'https://snapchat.com' : ''
           })
         };
         await axios.put('/api/profile', payload);
