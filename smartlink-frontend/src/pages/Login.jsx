@@ -29,7 +29,8 @@ const Login = () => {
     },
     onError: (errorResponse) => {
       console.error("Google OAuth error:", errorResponse);
-      setError("Google OAuth origin mismatch (Error 400). http://localhost:5173 must be added to Authorized JavaScript origins in Google Cloud Console.");
+      // Open backup modal if OAuth popup fails or is closed
+      setIsGoogleModalOpen(true);
     }
   });
 
@@ -167,7 +168,7 @@ const Login = () => {
             <button
               type="button"
               disabled={googleLoading}
-              onClick={() => setIsGoogleModalOpen(true)}
+              onClick={() => triggerGoogleLogin()}
               className="w-full flex justify-center items-center py-3.5 px-6 border border-gray-200 rounded-full bg-white text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer shadow-2xs hover:border-gray-300"
             >
               {googleLoading ? (
