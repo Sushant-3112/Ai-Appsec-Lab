@@ -9,7 +9,16 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { QRCodeSVG } from 'qrcode.react';
 
-const COLORS = ['#4F46E5', '#EC4899', '#8B5CF6', '#10B981', '#F59E0B', '#3B82F6'];
+const CREATOR_CATEGORIES = [
+  { id: 'comedian', label: 'Standup Comedian', emoji: '🎭', niche: 'comedy', desc: 'Show passes, comedy scripts, VIP meetups & audio roasts' },
+  { id: 'tech', label: 'Tech & Developer', emoji: '💻', niche: 'software', desc: 'Code templates, SaaS starter kits, cheat sheets & mentorship' },
+  { id: 'fitness', label: 'Fitness & Health', emoji: '👟', niche: 'fitness', desc: 'Workout plans, meal prep ebooks, 30-day challenge guides' },
+  { id: 'artist', label: 'Designer & Artist', emoji: '🎨', niche: 'design', desc: 'UI kits, Lightroom presets, Procreate brushes & wallpapers' },
+  { id: 'musician', label: 'Musician & Podcaster', emoji: '🎵', niche: 'music', desc: 'Sample packs, audio presets, exclusive stems & podcast guides' },
+  { id: 'business', label: 'Business & Educator', emoji: '📈', niche: 'business', desc: 'Notion hubs, pitch deck templates & masterclass courses' },
+  { id: 'lifestyle', label: 'Fashion & Lifestyle', emoji: '💄', niche: 'fashion', desc: 'Preset filters, style lookbooks & creator gear lists' },
+  { id: 'culinary', label: 'Culinary & Food', emoji: '🍳', niche: 'food', desc: 'Recipe ebooks, meal planners & secret sauce guides' },
+];
 
 const Dashboard = () => {
   const location = useLocation();
@@ -22,6 +31,74 @@ const Dashboard = () => {
   const [mlInsights, setMlInsights] = useState({ best_posting_time: '', confidence_score: 0 });
   const [newLink, setNewLink] = useState({ title: '', url: '', type: 'website', animation: '' });
   const [products, setProducts] = useState([]);
+
+  // ── Creator Category AI Product Generator System ──
+  const [selectedCategory, setSelectedCategory] = useState(CREATOR_CATEGORIES[0]);
+  const [aiIdeasModalOpen, setAiIdeasModalOpen] = useState(false);
+  const [generatingIdeas, setGeneratingIdeas] = useState(false);
+  const [aiIdeas, setAiIdeas] = useState([]);
+  const [aiProvider, setAiProvider] = useState('');
+  const [selectedPriceRange, setSelectedPriceRange] = useState('medium');
+  const [addingIdeaIndex, setAddingIdeaIndex] = useState(null);
+
+  const handleGenerateAiIdeas = async (categoryObj = selectedCategory, priceRange = selectedPriceRange) => {
+    setSelectedCategory(categoryObj);
+    setSelectedPriceRange(priceRange);
+    setGeneratingIdeas(true);
+    setAiIdeasModalOpen(true);
+    try {
+      const res = await axios.post('/api/ai/product-ideas', {
+        category: categoryObj.id,
+        niche: categoryObj.niche,
+        target_audience: `${categoryObj.label} audience and fans`,
+        price_range: priceRange
+      });
+      if (res.data && res.data.ideas) {
+        setAiIdeas(res.data.ideas);
+        setAiProvider(res.data.provider || 'gemini');
+      }
+    } catch (err) {
+      console.error('Error generating AI product ideas:', err);
+    } finally {
+      setGeneratingIdeas(false);
+    }
+  };
+
+  const handleAddIdeaToStorefront = async (idea, index) => {
+    setAddingIdeaIndex(index);
+    try {
+      let cleanPrice = idea.suggested_price ? idea.suggested_price.replace(/[^0-9.]/g, '') : '499';
+      if (!cleanPrice || isNaN(cleanPrice) || Number(cleanPrice) === 0) cleanPrice = '499';
+      
+      const sampleImages = {
+        comedian: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80',
+        tech: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80',
+        fitness: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
+        artist: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&auto=format&fit=crop&q=80',
+        musician: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
+        business: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
+        lifestyle: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop&q=80',
+        culinary: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&auto=format&fit=crop&q=80'
+      };
+
+      const imgUrl = sampleImages[selectedCategory.id] || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80';
+
+      await axios.post('/api/products', {
+        name: idea.name,
+        price: Number(cleanPrice),
+        description: idea.selling_pitch || idea.description,
+        file_url: 'https://smartlink-digital-downloads.s3.amazonaws.com/sample-digital-asset.pdf',
+        image_url: imgUrl
+      });
+      setUpdateMsg(`🎉 Added "${idea.name}" to your Storefront!`);
+      setTimeout(() => setUpdateMsg(''), 4000);
+      await fetchProducts();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to add product');
+    } finally {
+      setAddingIdeaIndex(null);
+    }
+  };
   
   const fetchProducts = async () => {
     try {
@@ -1564,22 +1641,76 @@ const Dashboard = () => {
                             <span className="bg-emerald-400/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-400/30">Gemini + OpenAI</span>
                           </div>
                           <h3 className="text-3xl font-black mb-2 tracking-tight">Product Studio</h3>
-                          <p className="text-white/70 max-w-md font-medium">Create, sell, and monetize digital products with AI-powered idea generation and premium storefronts.</p>
+                          <p className="text-white/70 max-w-md font-medium">Create, sell, and monetize digital products tailored specifically to your creator category with AI!</p>
                        </div>
                        <div className="flex gap-3">
-                          <button onClick={async () => {
-                            try {
-                              const res = await axios.post('/api/ai/product-ideas', { category: 'general', niche: 'tech', price_range: 'medium' });
-                              if (res.data.success && res.data.ideas) {
-                                const modal = document.getElementById('ai-ideas-modal');
-                                if (modal) { modal.dataset.ideas = JSON.stringify(res.data); modal.style.display = 'flex'; }
-                              }
-                            } catch(err) { console.error(err); }
-                          }} className="bg-white text-purple-700 px-6 py-3 rounded-xl font-bold hover:bg-purple-50 transition shadow-lg flex items-center gap-2 group">
-                             <Bot size={18} className="group-hover:animate-spin" /> Generate Ideas with AI
+                          <button 
+                            onClick={() => handleGenerateAiIdeas(selectedCategory)}
+                            disabled={generatingIdeas}
+                            className="bg-white text-purple-700 px-6 py-3.5 rounded-2xl font-extrabold hover:bg-purple-50 transition shadow-xl flex items-center gap-2 group cursor-pointer disabled:opacity-75"
+                          >
+                             <Bot size={20} className={generatingIdeas ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'} />
+                             <span>{generatingIdeas ? 'Generating Ideas...' : `Generate Ideas (${selectedCategory.emoji} ${selectedCategory.label})`}</span>
                           </button>
                        </div>
                      </div>
+                  </div>
+
+                  {/* Creator Category Selector Bar */}
+                  <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
+                          <span>✨ Select Creator Category</span>
+                          <span className="bg-purple-100 text-purple-700 text-xs px-2.5 py-0.5 rounded-full font-black">8 Categories</span>
+                        </h4>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">Choose your category to unlock custom digital product ideas, pricing & pitches</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                      {CREATOR_CATEGORIES.map((cat) => {
+                        const isSelected = selectedCategory.id === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 group ${
+                              isSelected
+                                ? 'bg-gradient-to-b from-purple-600 to-indigo-600 text-white border-purple-600 shadow-md scale-102 ring-2 ring-purple-400/40'
+                                : 'bg-gray-50/80 hover:bg-purple-50/70 text-gray-700 border-gray-100 hover:border-purple-200'
+                            }`}
+                          >
+                            <span className="text-2xl group-hover:scale-110 transition-transform">{cat.emoji}</span>
+                            <span className={`text-[11px] font-bold line-clamp-1 ${isSelected ? 'text-white' : 'text-gray-800'}`}>{cat.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Active Category Description Ribbon */}
+                    <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50/50 border border-purple-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-xl font-bold shadow-sm shrink-0">
+                          {selectedCategory.emoji}
+                        </div>
+                        <div>
+                          <div className="text-sm font-black text-gray-900 flex items-center gap-2">
+                            <span>{selectedCategory.label} Ideas</span>
+                            <span className="text-[10px] text-purple-700 font-bold uppercase bg-purple-100 px-2 py-0.5 rounded-full">{selectedCategory.niche}</span>
+                          </div>
+                          <p className="text-xs text-gray-600 font-medium">{selectedCategory.desc}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleGenerateAiIdeas(selectedCategory)}
+                        disabled={generatingIdeas}
+                        className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+                      >
+                        <Sparkles size={14} className={generatingIdeas ? 'animate-spin' : ''} />
+                        <span>{generatingIdeas ? 'Generating...' : `Generate ${selectedCategory.label} Ideas`}</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Stats Row */}
@@ -1868,6 +1999,176 @@ const Dashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI Product Ideas Modal */}
+      {aiIdeasModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-100 flex flex-col">
+            {/* Modal Header */}
+            <div className="p-6 bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white flex justify-between items-center relative overflow-hidden shrink-0">
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/30 border border-purple-400/30 flex items-center justify-center text-2xl shadow-inner">
+                  {selectedCategory.emoji}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-extrabold text-xl text-white tracking-tight">{selectedCategory.label} Ideas</h3>
+                    <span className="bg-emerald-400/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+                      <Sparkles size={10} /> {aiProvider === 'gemini' ? 'Gemini AI' : aiProvider === 'openai' ? 'OpenAI' : 'Smart Creator Engine'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-purple-200/80 font-medium">AI generated digital products tailored for {selectedCategory.label}</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setAiIdeasModalOpen(false)}
+                className="relative z-10 text-white/70 hover:text-white rounded-full p-2 hover:bg-white/10 transition cursor-pointer"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            {/* Category Switcher & Filter Ribbon */}
+            <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between gap-3 overflow-x-auto shrink-0">
+              <div className="flex items-center gap-1.5 min-w-max">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">Category:</span>
+                {CREATOR_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleGenerateAiIdeas(cat, selectedPriceRange)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                      selectedCategory.id === cat.id
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span>{cat.emoji}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Content / Idea Cards */}
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+              {generatingIdeas ? (
+                <div className="py-20 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
+                  <h4 className="text-lg font-bold text-gray-900 mb-1">Generating {selectedCategory.label} Ideas...</h4>
+                  <p className="text-xs text-gray-500 max-w-sm">Our AI engine is crafting 6 unique digital product ideas with pricing, pitches, and cover concepts.</p>
+                </div>
+              ) : aiIdeas.length === 0 ? (
+                <div className="py-16 text-center">
+                  <Bot size={48} className="text-gray-300 mx-auto mb-3" />
+                  <h4 className="text-base font-bold text-gray-700 mb-1">No ideas generated yet</h4>
+                  <p className="text-xs text-gray-400 mb-4">Click below to trigger AI idea generation for {selectedCategory.label}</p>
+                  <button
+                    onClick={() => handleGenerateAiIdeas(selectedCategory)}
+                    className="bg-purple-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-purple-700 transition"
+                  >
+                    Generate Ideas Now
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {aiIdeas.map((idea, index) => (
+                    <div 
+                      key={index}
+                      className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="bg-purple-100 text-purple-700 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                              {idea.category || selectedCategory.id}
+                            </span>
+                            {idea.difficulty && (
+                              <span className="bg-gray-100 text-gray-600 font-semibold text-[10px] px-2 py-0.5 rounded-full">
+                                ⚡ {idea.difficulty}
+                              </span>
+                            )}
+                            {idea.time_to_create && (
+                              <span className="bg-gray-100 text-gray-600 font-semibold text-[10px] px-2 py-0.5 rounded-full">
+                                ⏱️ {idea.time_to_create}
+                              </span>
+                            )}
+                          </div>
+                          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 font-black text-sm px-3 py-1 rounded-xl shadow-xs shrink-0">
+                            {idea.suggested_price || '₹499'}
+                          </div>
+                        </div>
+
+                        <h4 className="font-extrabold text-gray-900 text-base mb-1.5 group-hover:text-purple-600 transition-colors">
+                          {idea.name}
+                        </h4>
+
+                        <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                          {idea.description}
+                        </p>
+
+                        {idea.selling_pitch && (
+                          <div className="bg-purple-50/60 rounded-xl p-3 mb-3 border border-purple-100/60">
+                            <div className="text-[10px] font-extrabold text-purple-700 uppercase tracking-wider mb-0.5">🎯 Selling Pitch</div>
+                            <p className="text-xs text-gray-700 italic font-medium">"{idea.selling_pitch}"</p>
+                          </div>
+                        )}
+
+                        {idea.cover_idea && (
+                          <div className="text-[11px] text-gray-500 mb-3 flex items-center gap-1.5">
+                            <Palette size={12} className="text-purple-500 shrink-0" />
+                            <span className="truncate">Cover: {idea.cover_idea}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+                        <div className="flex gap-1 flex-wrap">
+                          {(idea.tags || []).slice(0, 3).map((tag, tIdx) => (
+                            <span key={tIdx} className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md font-medium">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <button
+                          onClick={() => handleAddIdeaToStorefront(idea, index)}
+                          disabled={addingIdeaIndex === index}
+                          className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-xs flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                        >
+                          {addingIdeaIndex === index ? (
+                            <>
+                              <Bot size={13} className="animate-spin" />
+                              <span>Adding...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus size={14} />
+                              <span>Add to Storefront</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-white border-t border-gray-100 flex justify-between items-center text-xs text-gray-500 px-6 shrink-0">
+              <span>Click <strong>Add to Storefront</strong> to instantly list any product idea for sale!</span>
+              <button
+                onClick={() => handleGenerateAiIdeas(selectedCategory, selectedPriceRange)}
+                disabled={generatingIdeas}
+                className="text-purple-600 hover:text-purple-800 font-bold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+              >
+                <Sparkles size={14} /> Regenerate Ideas
+              </button>
+            </div>
           </div>
         </div>
       )}
