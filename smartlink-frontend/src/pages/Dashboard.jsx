@@ -583,12 +583,6 @@ const Dashboard = () => {
                 Analytics
               </button>
               <button 
-                className={`min-w-[100px] px-4 py-4 font-medium text-sm text-center ${activeTab === 'qrcode' ? 'text-primary border-b-2 border-primary bg-indigo-50/30' : 'text-gray-500 hover:bg-gray-50'}`}
-                onClick={() => setActiveTab('qrcode')}
-              >
-                QR Code
-              </button>
-              <button 
                 className={`min-w-[100px] px-4 py-4 font-medium text-sm text-center ${activeTab === 'monetize' ? 'text-primary border-b-2 border-primary bg-indigo-50/30' : 'text-gray-500 hover:bg-gray-50'}`}
                 onClick={() => setActiveTab('monetize')}
               >
