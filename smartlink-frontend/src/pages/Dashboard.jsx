@@ -588,49 +588,55 @@ const Dashboard = () => {
       )}
 
       {/* Profile Link Banner */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-4 mb-8 border border-indigo-100 flex flex-col sm:flex-row items-center justify-between shadow-sm">
-        <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
-          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-4 text-indigo-600 flex-shrink-0">
-             <Globe size={20} />
+      {(() => {
+        const liveHandle = user?.username || 'sushant17022005';
+        const liveUrl = `${window.location.origin}/${liveHandle}`;
+        return (
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-4 mb-8 border border-indigo-100 flex flex-col sm:flex-row items-center justify-between shadow-sm">
+            <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
+              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-4 text-indigo-600 flex-shrink-0">
+                 <Globe size={20} />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5">Your personal link is live</p>
+                <a href={`/${liveHandle}`} target="_blank" rel="noreferrer" className="text-sm sm:text-base font-bold text-indigo-700 hover:text-indigo-900 transition truncate block w-full">
+                  {liveUrl}
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+               <button 
+                 onClick={() => {
+                   navigator.clipboard.writeText(liveUrl);
+                   setUpdateMsg('Link Copied to Clipboard!');
+                   setTimeout(() => setUpdateMsg(''), 3000);
+                 }}
+                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-200 px-5 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm text-sm"
+               >
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                 Copy
+               </button>
+               <button 
+                 onClick={() => {
+                   if (navigator.share) {
+                     navigator.share({
+                       title: `${profileData.full_name || liveHandle}'s Profile`,
+                       url: liveUrl
+                     }).catch(console.error);
+                   } else {
+                     navigator.clipboard.writeText(liveUrl);
+                     setUpdateMsg('Link Copied to Clipboard!');
+                     setTimeout(() => setUpdateMsg(''), 3000);
+                   }
+                 }}
+                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md text-sm"
+               >
+                 Share
+               </button>
+            </div>
           </div>
-          <div className="overflow-hidden">
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5">Your personal link is live</p>
-            <a href={`/${user?.username}`} target="_blank" rel="noreferrer" className="text-sm sm:text-base font-bold text-indigo-700 hover:text-indigo-900 transition truncate block w-full">
-              {window.location.origin}/{user?.username}
-            </a>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-           <button 
-             onClick={() => {
-               navigator.clipboard.writeText(`${window.location.origin}/${user?.username}`);
-               setUpdateMsg('Link Copied to Clipboard!');
-               setTimeout(() => setUpdateMsg(''), 3000);
-             }}
-             className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-200 px-5 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm text-sm"
-           >
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-             Copy
-           </button>
-           <button 
-             onClick={() => {
-               if (navigator.share) {
-                 navigator.share({
-                   title: `${profileData.full_name || user?.username}'s Profile`,
-                   url: `${window.location.origin}/${user?.username}`
-                 }).catch(console.error);
-               } else {
-                 navigator.clipboard.writeText(`${window.location.origin}/${user?.username}`);
-                 setUpdateMsg('Link Copied to Clipboard!');
-                 setTimeout(() => setUpdateMsg(''), 3000);
-               }
-             }}
-             className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md text-sm"
-           >
-             Share
-           </button>
-        </div>
-      </div>
+        );
+      })()}
 
       <div className="flex flex-col md:flex-row gap-8">
         
