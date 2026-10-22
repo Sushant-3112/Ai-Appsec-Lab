@@ -656,3 +656,58 @@ def detect_anomalies():
         'analysis_period': '7 days',
         'timestamp': datetime.utcnow().isoformat()
     }), 200
+
+
+@api_bp.route('/analytics/ai-video-analysis', methods=['POST'])
+@api_bp.route('/ai/video-analysis', methods=['POST'])
+@jwt_required(optional=True)
+def run_ai_video_analysis():
+    """Run AI algorithm analysis on YouTube, Instagram, and X (Twitter) videos."""
+    data = request.get_json() or {}
+    url = data.get('url', '').strip()
+    platform = data.get('platform', 'auto')
+    niche = data.get('niche', 'general')
+    title = data.get('title', '').strip()
+
+    if not url:
+        return jsonify({'success': False, 'message': 'Video URL is required'}), 400
+
+    try:
+        from app.ai_video_engine import analyze_video_with_ai
+        analysis_result = analyze_video_with_ai(
+            url=url,
+            platform=platform,
+            niche=niche,
+            title_override=title
+        )
+
+        current_user_id = get_jwt_identity()
+        if current_user_id:
+            try:
+                user_id = int(current_user_id)
+                if data.get('save_to_links'):
+                    existing_link = Link.query.filter_by(user_id=user_id, url=url).first()
+                    if not existing_link:
+                        new_link = Link(
+                            user_id=user_id,
+                            title=analysis_result['title'][:100],
+                            url=url,
+                            type='video',
+                            category=f"{analysis_result['platform_display']} Video",
+                            is_active=True
+                        )
+                        db.session.add(new_link)
+                        db.session.commit()
+                        analysis_result['link_id'] = new_link.id
+            except Exception as e:
+                db.session.rollback()
+                print(f"User link association notice: {e}")
+
+        return jsonify(analysis_result), 200
+    except Exception as e:
+        print(f"AI Video Analysis error: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Analysis error: {str(e)}'
+        }), 500
+
