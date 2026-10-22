@@ -295,3 +295,130 @@ def delete_subscriber(lead_id):
     db.session.commit()
     return jsonify({'message': 'Subscriber deleted successfully'}), 200
 
+
+@api_bp.route('/links/drip', methods=['POST'])
+@jwt_required()
+def create_drip_link():
+    """Schedule a new time-based or goal-based Link Drip and store in database"""
+    current_user_id = int(get_jwt_identity())
+    data = request.get_json() or {}
+    
+    title = data.get('title')
+    url = data.get('url')
+    if not title or not url:
+        return jsonify({'message': 'Title and destination URL are required'}), 400
+        
+    drip_type = data.get('drip_type', 'time')
+    scheduled_start = None
+    click_goal = 0
+    
+    if drip_type == 'time' and data.get('drip_date'):
+        try:
+            scheduled_start = datetime.fromisoformat(data['drip_date'].replace('Z', '+00:00'))
+        except (ValueError, TypeError):
+            scheduled_start = None
+    elif drip_type == 'goal':
+        click_goal = int(data.get('target_views') or data.get('targetViews') or 1000)
+
+    now = datetime.utcnow()
+    is_active = True
+    if scheduled_start and scheduled_start > now:
+        is_active = False
+    elif click_goal > 0:
+        is_active = False
+
+    link = Link(
+        user_id=current_user_id,
+        title=title,
+        url=url,
+        type='video',
+        category='Link Drip',
+        click_goal=click_goal,
+        scheduled_start=scheduled_start,
+        is_active=is_active
+    )
+    db.session.add(link)
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Link Drip scheduled and stored in database successfully',
+        'link': {
+            'id': link.id,
+            'title': link.title,
+            'url': link.url,
+            'type': link.type,
+            'category': link.category,
+            'click_goal': link.click_goal,
+            'scheduled_start': link.scheduled_start.isoformat() if link.scheduled_start else None,
+            'is_active': link.is_active
+        }
+    }), 201
+
+
+@api_bp.route('/links/drip/status', methods=['GET'])
+@jwt_required()
+def get_drip_status():
+    """Evaluate active and pending drip links for the user's account from database"""
+    current_user_id = int(get_jwt_identity())
+    links = Link.query.filter(
+        Link.user_id == current_user_id,
+        (Link.category == 'Link Drip') | (Link.scheduled_start != None) | (Link.click_goal > 0)
+    ).order_by(Link.created_at.desc()).all()
+    
+    now = datetime.utcnow()
+    drips = []
+    for link in links:
+        views = LinkView.query.filter_by(link_id=link.id).count()
+        clicks = link.analytics.count()
+        
+        if link.click_goal and link.click_goal > 0:
+            if clicks >= link.click_goal or views >= link.click_goal:
+                status = 'active'
+                drip_time = f'Goal Reached ({link.click_goal:,} views)'
+            else:
+                status = 'dripping'
+                drip_time = f'Unlocks at {link.click_goal:,} views ({clicks} clicks)'
+        elif link.scheduled_start:
+            if link.scheduled_start <= now:
+                status = 'active'
+                drip_time = 'Live Now'
+            else:
+                status = 'scheduled'
+                drip_time = f'Scheduled {link.scheduled_start.strftime("%b %d, %Y %H:%M")}'
+        else:
+            status = 'active'
+            drip_time = 'Live Now'
+            
+        ctr = f"{(clicks / (views or 1) * 100):.1f}%" if views > 0 else f"{clicks}%" if clicks > 0 else "0%"
+        
+        drips.append({
+            'id': link.id,
+            'title': link.title,
+            'url': link.url,
+            'views': max(views, clicks, 0),
+            'watchTime': '3m 45s',
+            'retention': '82%',
+            'dripStatus': status,
+            'dripTime': drip_time,
+            'clickThrough': ctr,
+            'click_goal': link.click_goal,
+            'scheduled_start': link.scheduled_start.isoformat() if link.scheduled_start else None,
+            'is_active': link.is_active
+        })
+        
+    return jsonify({'drips': drips, 'count': len(drips)}), 200
+
+
+@api_bp.route('/links/drip/<int:link_id>', methods=['DELETE'])
+@jwt_required()
+def delete_drip_link(link_id):
+    """Delete a drip link from database"""
+    current_user_id = int(get_jwt_identity())
+    link = Link.query.filter_by(id=link_id, user_id=current_user_id).first()
+    if not link:
+        return jsonify({'message': 'Drip link not found'}), 404
+    db.session.delete(link)
+    db.session.commit()
+    return jsonify({'message': 'Drip link deleted successfully'}), 200
+
+

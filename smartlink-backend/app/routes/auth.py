@@ -18,7 +18,9 @@ def register():
         return jsonify({'message': 'Username already taken'}), 400
 
     user = User(
+        # pyrefly: ignore [unexpected-keyword]
         email=data['email'],
+        # pyrefly: ignore [unexpected-keyword]
         username=data['username'],
         full_name=data.get('full_name', '')
     )

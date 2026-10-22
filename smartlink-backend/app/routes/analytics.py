@@ -1,10 +1,11 @@
 from flask import jsonify, request
 from app import db
-from app.models import Link, Analytics
+from app.models import Link, Analytics, User
 from app.routes import api_bp
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 from datetime import datetime, timedelta
+import json
 import random
 import numpy as np
 from collections import Counter
@@ -141,6 +142,33 @@ def track_analytics():
         'engagement_score': engagement_score,
         'is_bot': is_bot
     }), 201
+
+
+@api_bp.route('/analytics/social-videos', methods=['GET'])
+@jwt_required()
+def get_social_video_analytics():
+    """Real YouTube view counts from Profile + Links social URLs."""
+    from app.youtube_stats import collect_social_analytics
+
+    current_user_id = int(get_jwt_identity())
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    profile_urls = {}
+    try:
+        config = json.loads(user.theme_config) if user.theme_config else {}
+        if isinstance(config, dict):
+            for key in ('youtube', 'instagram', 'twitter', 'snapchat', 'tiktok'):
+                if config.get(key):
+                    profile_urls[key] = config[key]
+    except (json.JSONDecodeError, TypeError):
+        profile_urls = {}
+
+    links = Link.query.filter_by(user_id=current_user_id).order_by(Link.order).all()
+    link_payload = [{'id': link.id, 'title': link.title, 'url': link.url, 'type': link.type} for link in links]
+    payload = collect_social_analytics(profile_urls, link_payload)
+    return jsonify(payload), 200
 
 
 def detect_bot(user_agent):
