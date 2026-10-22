@@ -190,6 +190,35 @@ Return strict JSON only (no markdown, no backticks, just raw JSON) matching this
     if not ai_gemini_insights:
         ai_gemini_insights = generate_heuristic_algorithm_model(detected_platform, video_title, niche)
 
+    # Fetch real live YouTube views and likes if platform is YouTube
+    real_views = None
+    real_likes = None
+    real_duration = None
+
+    if detected_platform == 'youtube':
+        yt_match = YOUTUBE_RE.search(url)
+        if yt_match:
+            try:
+                from app.youtube_stats import _public_video_stats, _session
+                pub_stat = _public_video_stats(yt_match.group(1), _session())
+                if pub_stat:
+                    if pub_stat.get('views') is not None and pub_stat.get('views') > 0:
+                        real_views = pub_stat['views']
+                    if pub_stat.get('likes') is not None:
+                        real_likes = pub_stat['likes']
+                    if pub_stat.get('duration'):
+                        real_duration = pub_stat['duration']
+                    if pub_stat.get('title') and not title_override:
+                        video_title = pub_stat['title']
+                    if pub_stat.get('channel_title'):
+                        author_name = pub_stat['channel_title']
+            except Exception as e:
+                print(f"Error fetching real YouTube stats: {e}")
+
+    final_views = real_views if real_views is not None else ai_gemini_insights.get('projected_views', 16800)
+    final_likes = real_likes if real_likes is not None else max(1, int(final_views * 0.052))
+    like_ratio = f"{round((final_likes / max(final_views, 1)) * 100, 1)}%"
+
     # Combine into comprehensive report
     result = {
         'success': True,
@@ -200,13 +229,21 @@ Return strict JSON only (no markdown, no backticks, just raw JSON) matching this
         'author': author_name,
         'thumbnail': thumbnail or get_default_platform_thumbnail(detected_platform),
         'niche': niche,
+        'views': final_views,
+        'likes': final_likes,
+        'total_views': final_views,
+        'total_likes': final_likes,
+        'youtube_views': final_views if detected_platform == 'youtube' else None,
+        'youtube_likes': final_likes if detected_platform == 'youtube' else None,
+        'like_to_view_ratio': like_ratio,
         'viral_score': ai_gemini_insights.get('viral_score', 88),
         'algorithm_match_score': ai_gemini_insights.get('algorithm_match_score', 92),
         'hook_rating': ai_gemini_insights.get('hook_rating', 'Strong Hook (9.2/10)'),
         'hook_verdict': ai_gemini_insights.get('hook_verdict', 'Captures immediate visual intrigue within the initial 3 seconds.'),
-        'projected_views': ai_gemini_insights.get('projected_views', 14500),
+        'projected_views': final_views,
+        'projected_likes': final_likes,
         'projected_ctr': ai_gemini_insights.get('projected_ctr', '12.8%'),
-        'avg_duration': ai_gemini_insights.get('avg_duration', '4m 18s'),
+        'avg_duration': real_duration or ai_gemini_insights.get('avg_duration', '4m 18s'),
         'retention_rate': ai_gemini_insights.get('retention_rate', '82.4%'),
         'algorithm_feed_status': ai_gemini_insights.get('algorithm_feed_status', 'Recommended for Seed Feed Distribution'),
         'retention_curve': ai_gemini_insights.get('retention_curve', [
