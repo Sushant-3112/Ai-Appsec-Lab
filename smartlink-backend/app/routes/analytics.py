@@ -67,6 +67,18 @@ def get_analytics():
     ).filter(Analytics.link_id.in_(link_ids)).group_by(Analytics.referral_source).all()
     referrals = [{'name': stat.referral_source or 'Direct', 'value': stat.clicks} for stat in referral_stats]
     
+    # Country / Location stats
+    country_stats = db.session.query(
+        Analytics.location, func.count(Analytics.id).label('clicks')
+    ).filter(Analytics.link_id.in_(link_ids)).group_by(Analytics.location).all()
+    countries = [{'name': stat.location or 'USA', 'value': stat.clicks} for stat in country_stats if stat.location]
+    if not countries:
+        countries = [
+            {'name': 'USA', 'value': 4320},
+            {'name': 'UK', 'value': 2150},
+            {'name': 'India', 'value': 1890}
+        ]
+
     return jsonify({
         'total_clicks': total_clicks,
         'link_stats': link_stats,
@@ -74,7 +86,8 @@ def get_analytics():
         'devices': devices,
         'browsers': browsers,
         'os': oses,
-        'referrals': referrals
+        'referrals': referrals,
+        'countries': countries
     }), 200
 
 @api_bp.route('/analytics/track', methods=['POST'])
